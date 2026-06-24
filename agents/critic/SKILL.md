@@ -1,6 +1,6 @@
 ---
 name: critic
-description: Use after PM, UX, or UI stages complete to review artifacts for quality and correctness - a critic agent that evaluates for discipline best practices, brief alignment, prior-artifact coherence, completeness, clarity, and omissions/errors/oversights. Runs max two passes (fail on issues → agent revises → 2nd pass validates + suggests). Reports findings to the orchestrator; does not block but flags context for the human gate. Triggers - "review", "critic", "quality gate", "check this".
+description: Use after PM, UX, or UI stages complete to review artifacts for quality and correctness - a critic agent that evaluates across eight criteria: discipline best practices, brief alignment, prior-artifact coherence, completeness, clarity, omissions, errors, and oversights. Runs max two passes (fail on issues → agent revises → 2nd pass validates + suggests). Reports findings to the orchestrator; does not block but flags context for the human gate. Triggers - "review", "critic", "quality gate", "check this".
 ---
 
 # Critic Agent
@@ -27,7 +27,7 @@ You review **only PM, UX, and UI artifacts** (01-pm-brief.md, 02-ux-workflow.md,
 
 ## Evaluation criteria
 
-Review across all six dimensions. For each, decide: **passes** or **issue found
+Review across all eight dimensions. For each, decide: **passes** or **issue found
 (and severity: minor / significant)**.
 
 1. **Discipline best practices** — does this artifact follow the craft standards
@@ -44,16 +44,21 @@ Review across all six dimensions. For each, decide: **passes** or **issue found
 5. **Quality & clarity** — is the language clear and justified? Are decisions
    marked as confirmed vs. assumed? Are vague answers ("modern," "intuitive")
    probed into specifics?
-6. **Omissions, errors & oversights** — are there substantive gaps or mistakes in
-   the artifact's content? Did the PM miss a key user segment or constraint? Did
-   the UX miss a critical flow or state? Did the UI overlook an accessibility
-   requirement? Are there factual errors or logical contradictions? This is about
-   correctness, not process — the "did we actually think this through?" check.
+6. **Omissions** — are there gaps or missing pieces in the artifact? Did the PM
+   miss a key user segment, constraint, or job-to-be-done? Did the UX miss a
+   critical flow, state, or surface? Did the UI miss a key element or design
+   direction? What was left out that should have been included?
+7. **Errors** — are there factual mistakes, logical contradictions, or false
+   claims in the artifact? Does something contradict the brief or a prior artifact?
+   Is there an internal inconsistency (e.g., a flow that contradicts itself)?
+8. **Oversights** — did the artifact miss something that should have been obvious
+   given the context? A constraint that was ignored? An accessibility requirement?
+   A best practice in the discipline? The "how did we not notice this?" check.
 
 ## Pass 1: Initial review
 
 - Read the artifact thoroughly.
-- Evaluate across all five criteria.
+- Evaluate across all eight criteria.
 - If **no issues found:** report "APPROVED" and stop.
 - If **issues found:** list them by criterion and severity. For each issue,
   provide specific guidance on how to fix it. Be clear and actionable. Send the
@@ -121,9 +126,9 @@ decision-maker.
 This skill is meant to be edited as the team's quality standards evolve. You may
 freely rewrite:
 
-- **The six criteria** (best practices, brief consistency, prior-artifact coherence,
-  completeness, clarity, omissions/errors/oversights) — add, remove, or reword to
-  match your discipline's standards.
+- **The eight criteria** (best practices, brief consistency, prior-artifact
+  coherence, completeness, clarity, omissions, errors, oversights) — add, remove,
+  or reword to match your discipline's standards.
 - **Severity levels** (minor / significant) if useful.
 - **The report template** — how findings are documented and presented.
 
