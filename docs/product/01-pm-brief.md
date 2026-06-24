@@ -47,6 +47,18 @@ an orchestrator, proving the full idea→shipped loop before deepening any singl
 agent. The Sr. Product Manager agent is built first as the entry point. Each role
 is a skill, usable manually and via orchestration; handoffs are versioned docs.
 
+**Multi-project support (core capability):** Agent-C manages multiple concurrent,
+isolated projects. Each project lives at its **own configurable location** on
+disk — projects need NOT share a common root and may sit anywhere. The tool keeps
+a **central registry/dashboard** of every project it knows about (name, location,
+current stage, completed stages), so the user can switch between projects and
+**resume any one at any lifecycle stage** (e.g. Tiffany parked at UX while Amanda
+resumes at architect → engineering). The user can also **point Agent-C at an
+existing external directory** to adopt a project started elsewhere. Each project's
+handoff docs/artifacts live in that project's own folder; the registry is the
+cross-project index. (Registry format/location and stage-tracking mechanism are an
+architecture-stage concern.)
+
 **Explicit non-goals (v1):**
 - NOT a hosted SaaS / web app — it's a local package/repo run in the user's own
   Claude setup; no backend, accounts, or billing.
@@ -85,6 +97,10 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
 - Primary success metric: **projects actually shipped**.
 - v1 scope: **thin slice through the entire lifecycle** (PM→UX→UI→arch→eng→QA +
   orchestrator), shallow before deep; PM built first.
+- **Multi-project is a core capability:** concurrent isolated projects, each at
+  its own configurable path (no shared root required); a central registry/
+  dashboard tracks each project's location and current stage; any project is
+  resumable at any stage; existing external directories can be adopted.
 - Non-goals: not SaaS, not multi-user, not stack-specific.
 - Monetization deferred.
 
@@ -102,6 +118,9 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
 - Monetization model (free OSS vs. open-core vs. paid).
 - Distribution mechanism that avoids the home-dir symlink approach used in the
   builder's own setup (installer / packaging strategy).
+- Project registry mechanism (where the registry lives, its format, how a
+  project's current/completed stages are recorded and updated on handoff, and how
+  adopting an external directory works) — to be designed at the architect stage.
 
 ## Next handoff
 UX agent → reads this brief, runs workflow elicitation, writes
