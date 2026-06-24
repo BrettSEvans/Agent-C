@@ -45,6 +45,11 @@ significant)**.
 5. **Quality & clarity** — is the language clear and justified? Are decisions
    marked as confirmed vs. assumed? Are vague answers ("modern," "intuitive")
    probed into specifics?
+6. **Omissions, errors & oversights** — are there substantive gaps or mistakes in
+   the artifact's content? Did the PM miss a key user segment or constraint? Did
+   the UX miss a critical flow or state? Did the UI overlook an accessibility
+   requirement? Are there factual errors or logical contradictions? This is about
+   correctness, not process — the "did we actually think this through?" check.
 
 ## Pass 1: Initial review
 
@@ -117,8 +122,9 @@ decision-maker.
 This skill is meant to be edited as the team's quality standards evolve. You may
 freely rewrite:
 
-- **The five criteria** — add, remove, or reword to match your discipline's
-  standards.
+- **The six criteria** (best practices, brief consistency, prior-artifact coherence,
+  completeness, clarity, omissions/errors/oversights) — add, remove, or reword to
+  match your discipline's standards.
 - **Severity levels** (minor / significant) if useful.
 - **The report template** — how findings are documented and presented.
 
