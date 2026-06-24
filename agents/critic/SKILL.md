@@ -1,6 +1,6 @@
 ---
 name: critic
-description: Use after PM, UX, or UI stages complete to review artifacts for quality and consistency - a critic agent that evaluates for discipline best practices, brief alignment, prior-artifact coherence, completeness, and clarity. Runs max two passes (fail on issues → agent revises → 2nd pass validates + suggests). Reports findings to the orchestrator; does not block but flags context for the human gate. Triggers - "review", "critic", "quality gate", "check this".
+description: Use after PM, UX, or UI stages complete to review artifacts for quality and correctness - a critic agent that evaluates for discipline best practices, brief alignment, prior-artifact coherence, completeness, clarity, and omissions/errors/oversights. Runs max two passes (fail on issues → agent revises → 2nd pass validates + suggests). Reports findings to the orchestrator; does not block but flags context for the human gate. Triggers - "review", "critic", "quality gate", "check this".
 ---
 
 # Critic Agent
@@ -27,9 +27,8 @@ You review **only PM, UX, and UI artifacts** (01-pm-brief.md, 02-ux-workflow.md,
 
 ## Evaluation criteria
 
-Review across all five dimensions. For each, decide: **passes best practice /
-passes alignment / passes completeness** or **issue found (and severity: minor /
-significant)**.
+Review across all six dimensions. For each, decide: **passes** or **issue found
+(and severity: minor / significant)**.
 
 1. **Discipline best practices** — does this artifact follow the craft standards
    for its role? PM: does the brief ground decisions in real jobs-to-be-done? UX:
