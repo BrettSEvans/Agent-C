@@ -28,6 +28,19 @@ have not loaded it this session, load the `elicitation` skill now.
   — do not invent the product's what/why.
 - Ground every flow in the brief's jobs-to-be-done and scope.
 
+## Important: UX vs. orchestrator scope
+
+The UX stage defines **workflow surfaces and interactions** — how a user navigates,
+what decisions they make, what feedback they get. Some of those surfaces are
+*orchestrator-owned* (project registry, stage dispatch, approval gates) — **but
+the UX stage defines them as interaction requirements, not implementation**. The
+orchestrator (built later) will own the actual registry logic and gate mechanics.
+
+Example: UX elicits "what should the project dashboard show?" and produces the
+structure, fields, and sorting. That IS UX work (what the user needs to see to
+make decisions). *How* the registry persists and updates that data is the
+orchestrator's concern. Define the interface, not the backend.
+
 ## Product type (establish first)
 
 Not every product has GUI screens. Before the themes, determine the product type
@@ -54,12 +67,14 @@ theme is adequately answered (one probing follow-up on vague answers).
 2. **Entry points & structure** — how users get in, the top-level structure, and
    how they move between areas (navigation for a GUI; command/entry surface for a
    CLI or agentic tool).
-3. **Key interaction surfaces & purpose** — the screens/views (GUI), commands/
-   touchpoints (CLI/agentic), or endpoints (API) that exist and what each is *for*
-   (structure and content, NOT styling).
-4. **States & feedback** — the states each surface can be in and how the system
-   responds (e.g. empty/loading/success/error for a GUI; idle/working/awaiting-
-   input/done for a CLI or agent).
+3. **Key interaction surfaces & their content** — the screens/views (GUI), commands/
+   touchpoints (CLI/agentic), or endpoints (API) that exist, what they're *for*,
+   and *what information each displays* (structure, content, status fields, NOT
+   styling). For multi-surface systems, include the dashboard/registry structure
+   (columns, status fields, refresh model).
+4. **In-the-moment feedback & responses** — what the system communicates *during*
+   an interaction (loading, success, error states, waiting prompts). How it responds
+   to user actions in real-time (e.g. "validating..." → "done" or "error: X").
 5. **Edge cases & off-happy-path** — what happens when things go wrong, inputs are
    invalid, or the user does the unexpected.
 6. **Workflow constraints** — platform, accessibility, and scope boundaries (from
