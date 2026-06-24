@@ -59,6 +59,17 @@ handoff docs/artifacts live in that project's own folder; the registry is the
 cross-project index. (Registry format/location and stage-tracking mechanism are an
 architecture-stage concern.)
 
+**Orchestration & handoff model:** the **orchestrator** ("project manager" agent)
+is the single owner of lifecycle sequencing, the project registry, and the
+per-stage approval gates. Stage agents (PM, UX, UI, …) are workers that don't know
+about each other: each reads the prior stage's artifact, runs its elicitation,
+writes its own artifact, then **returns control and recommends the next stage** —
+it never directly invokes the next agent. The orchestrator presents each artifact
+for user approval, updates the registry (stage → complete), and decides whether to
+proceed, pause, or switch projects. This degrades gracefully: in manual use (e.g.
+Claude Desktop) the **user is the orchestrator** — same skills, the registry and
+gates are handled by hand.
+
 **Explicit non-goals (v1):**
 - NOT a hosted SaaS / web app — it's a local package/repo run in the user's own
   Claude setup; no backend, accounts, or billing.
@@ -101,6 +112,9 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
   its own configurable path (no shared root required); a central registry/
   dashboard tracks each project's location and current stage; any project is
   resumable at any stage; existing external directories can be adopted.
+- **Orchestrator owns the flow:** it controls sequencing, the registry, and
+  approval gates. Stage agents return control + recommend the next stage; they
+  never auto-chain. In manual use the user is the orchestrator (same skills).
 - Non-goals: not SaaS, not multi-user, not stack-specific.
 - Monetization deferred.
 

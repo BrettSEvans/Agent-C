@@ -46,9 +46,26 @@ When the themes are covered and reflected back:
 2. Write the result to `docs/product/01-pm-brief.md` in the target product's repo
    (create `docs/product/` if absent). If the working directory is ambiguous,
    confirm the path with the user before writing.
-3. Summarize the brief back in chat and end by teeing up the **UX handoff**:
-   "Next: the UX agent reads `01-pm-brief.md` and defines the workflow in
-   `02-ux-workflow.md`."
+3. Summarize the brief back in chat and end by **recommending** the next stage
+   (do not invoke it — see Handoff contract):
+   "Recommended next: the UX agent reads `01-pm-brief.md` and defines the workflow
+   in `02-ux-workflow.md`."
+
+## Handoff contract
+
+This agent is one stage in an orchestrated lifecycle. Sequencing, the project
+registry, and approval gates are owned by the **orchestrator**. In manual use
+(e.g. Claude Desktop) *you* are the orchestrator.
+
+- **Return control; do not auto-chain.** Once the brief is written, STOP.
+  Recommend the next stage and the doc it reads, then hand control back to the
+  caller (orchestrator or human). Never directly invoke the next agent.
+- **Recommend, don't decide.** The orchestrator (or human) approves the artifact,
+  updates the project registry (this stage → complete), and chooses whether to
+  proceed, pause, or switch projects.
+- **Project context comes from the caller.** Operate on the project path you were
+  given and write into that project's `docs/`. This is the FIRST stage, so there
+  is no prior artifact to read.
 
 ## Brief template
 
