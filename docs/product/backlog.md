@@ -14,6 +14,26 @@
   instead of crashing. *Deferred:* depends on registry design; shown in the
   dashboard wireframe for shape only.
 
+## Retrospective review of existing projects (feature request, 2026-06-24)
+
+- **Use case:** hand off an existing project to Agent-C for UX/UI review. Project
+  already has code, design, or partial implementation; user wants to validate the
+  workflow and look-and-feel against the product definition.
+- **Requirement:** UX agent reads PM brief to understand scope/users/job-to-be-done.
+  Existing projects have implicit answers but aren't documented. Need a bootstrap
+  mechanism.
+- **Two implementation paths:**
+  1. **Retrospective PM brief** — PM agent in "describe existing product" mode:
+     read code/design/docs, synthesize what the PM brief would have been, write it.
+     Then proceed to normal UX review.
+  2. **UX audit skill** — new variant `ux-audit`: reads existing project + brief,
+     and critiques current UX/workflow against it (vs. eliciting new workflow).
+     Could include UI audit similarly.
+- **Recommendation for v1:** defer both; Path 1 (retrospective brief) is simpler
+  and fits the current agent structure. Path 2 is post-v1 enhancement.
+- **Builds on:** multi-project adoption (already in scope); registry to track
+  "adopted" vs. "new" projects.
+
 ## User-customized skills (deferred from critic review, 2026-06-24)
 
 - **Per-user skill customization** — Agent-C should know which user is running it
