@@ -1,24 +1,24 @@
 # Agentic Dev System — Phase 1 (Sr. Product Manager) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement Tasks 1–4 task-by-task. Steps use checkbox (`- [ ]`) syntax. **Task 5 is interactive** — conduct it in the main session with the user, not a subagent.
 
-**Goal:** Build the shared `elicitation` skill, the `product-manager` skill (+ brief template), and a thin `sr-product-manager` agent wrapper, all in the `Agent-C` repo and symlinked live into `~/.claude/`, so the Sr. PM can run an 8-theme product-definition elicitation manually in Desktop or via orchestration.
+**Goal:** Build the shared `elicitation` skill and the `product-manager` skill (template inlined), symlink them live into `~/.claude/`, verify the skill actually loads, then run a real Sr. PM elicitation that defines **Agent-C itself** and writes `docs/product/01-pm-brief.md`.
 
-**Architecture:** Skill-first. The `elicitation` skill holds the reusable method; the `product-manager` skill layers the Sr. PM persona + 8 question themes + output template on top of it. A thin subagent definition invokes the skill so manual and orchestrated paths can't drift. Canonical files live in `~/Code/Saasless/Agent-C/`; symlinks expose them to Claude Desktop and Claude Code.
+**Architecture:** Skill-first. `elicitation` holds the reusable method; `product-manager` layers the Sr. PM persona + 8 themes + an **inlined** brief template + handoff. Canonical files in `~/Code/Saasless/Agent-C/`; symlinks expose them to Desktop and Code. The thin subagent wrapper is **deferred to the phase that adds the orchestrator** (see "Deferred").
 
-**Tech Stack:** Markdown skills (Claude Code/Desktop SKILL.md format with YAML frontmatter), POSIX symlinks, git. No runtime/build.
+**Tech Stack:** Markdown skills (SKILL.md + YAML frontmatter), POSIX symlinks, git. No runtime/build.
+
+**Revisions from critical review:** template inlined into the skill (no fragile cross-file read at runtime); agent wrapper deferred (YAGNI in Phase 1, and assumes-unverified that subagents can invoke the Skill tool); added a real skill-load check (Task 4); added the live elicitation as Task 5 with Agent-C as the subject.
 
 ---
 
 ## File Structure
 
-- `agents/elicitation/SKILL.md` — shared elicitation method (the "how"). One responsibility: define disciplined elicitation, role-agnostic.
-- `agents/product-manager/SKILL.md` — Sr. PM specialization (the "what/why"). Persona + 8 themes + handoff. References the elicitation skill.
-- `agents/product-manager/brief-template.md` — the exact template the PM fills into `docs/product/01-pm-brief.md`.
-- `agent-defs/sr-product-manager.md` — thin Claude Code subagent wrapper that adopts the persona and invokes the skill.
-- Symlinks (not files in repo): `~/.claude/skills/elicitation`, `~/.claude/skills/product-manager`, `~/.claude/agents/sr-product-manager.md`.
+- `agents/elicitation/SKILL.md` — shared elicitation method, role-agnostic.
+- `agents/product-manager/SKILL.md` — Sr. PM persona + 8 themes + inlined brief template + handoff.
+- `docs/product/01-pm-brief.md` — produced by Task 5 (the real first brief, defining Agent-C).
 
-Repo dirs `agents/`, `agent-defs/`, `docs/product/`, `docs/superpowers/specs|plans/` already exist.
+Repo dirs `agents/`, `docs/product/`, `docs/superpowers/specs|plans/` already exist.
 
 ---
 
@@ -95,84 +95,7 @@ git commit -m "feat: add shared elicitation skill"
 
 ---
 
-### Task 2: `product-manager` brief template
-
-**Files:**
-- Create: `agents/product-manager/brief-template.md`
-
-- [ ] **Step 1: Write the template file**
-
-Create `agents/product-manager/brief-template.md` with exactly:
-
-```markdown
-# Product Brief — <Product Name>
-
-> Source of truth for the product's **what & why**. Written by the Sr. Product
-> Manager. Read by UX next (`02-ux-workflow.md`).
-> Date: <YYYY-MM-DD>
-
-## 1. Problem & pain
-<What is broken or missing? How acute is it? Who feels it and how often?>
-
-## 2. Target users & jobs-to-be-done
-<Who are the users (segments)? What are they actually trying to accomplish — the
-job they "hire" this product for?>
-
-## 3. Current alternatives
-<How do users cope today, including "do nothing"? Why is that insufficient?>
-
-## 4. Value proposition & differentiation
-<Why this, why better than the alternatives? The core promise.>
-
-## 5. Success metrics
-<How will we know it worked? Leading and lagging indicators, target ranges.>
-
-## 6. Scope & non-goals
-<What this product IS. Explicitly, what it is NOT (for this version).>
-
-## 7. Constraints & risks
-<Budget, time, tech, team, regulatory. The biggest threats to success.>
-
-## 8. Business model & monetization
-<How it makes money or sustains itself. Pricing posture, if any.>
-
----
-
-## Decisions (confirmed)
-<Bulleted list of what the user explicitly agreed to.>
-
-## Assumptions
-<Things proceeded on without explicit confirmation.>
-
-## Open questions
-<Unresolved items to revisit.>
-
-## Next handoff
-UX agent → reads this brief, runs workflow elicitation, writes
-`docs/product/02-ux-workflow.md`.
-```
-
-- [ ] **Step 2: Verify the 8 themes plus 4 closing sections are present**
-
-Run:
-```bash
-cd ~/Code/Saasless/Agent-C
-grep -cE '^## [1-8]\.' agents/product-manager/brief-template.md
-grep -cE '^## (Decisions|Assumptions|Open questions|Next handoff)' agents/product-manager/brief-template.md
-```
-Expected: first command prints `8`; second prints `4`.
-
-- [ ] **Step 3: Commit**
-
-```bash
-cd ~/Code/Saasless/Agent-C
-git add agents/product-manager/brief-template.md
-git commit -m "feat: add product-manager brief template"
-```
-
----
-
-### Task 3: `product-manager` skill
+### Task 2: `product-manager` skill (template inlined)
 
 **Files:**
 - Create: `agents/product-manager/SKILL.md`
@@ -181,7 +104,7 @@ git commit -m "feat: add product-manager brief template"
 
 Create `agents/product-manager/SKILL.md` with exactly:
 
-```markdown
+````markdown
 ---
 name: product-manager
 description: Use when defining a new product or feature's what and why - a Senior Product Manager who runs a one-question-at-a-time discovery across problem, users/jobs-to-be-done, alternatives, value prop, metrics, scope/non-goals, constraints, and business model, then writes a product brief and hands off to UX. Triggers - "define the product", "what should we build", "product brief", "run product discovery".
@@ -225,15 +148,65 @@ answers).
 
 When the themes are covered and reflected back:
 
-1. Read `agents/product-manager/brief-template.md` (relative to this skill, it is
-   the sibling `brief-template.md`).
-2. Fill every section from the conversation. Use the user's words; mark anything
-   inferred under **Assumptions**.
-3. Write the result to `docs/product/01-pm-brief.md` in the target product's repo
-   (create `docs/product/` if absent). Confirm the path with the user if the
-   working directory is ambiguous.
-4. Summarize the brief back in chat and end by teeing up the **UX handoff**:
-   "Next: the UX agent reads `01-pm-brief.md` and defines the workflow."
+1. Fill the **brief template below** from the conversation. Use the user's words;
+   mark anything inferred under **Assumptions**.
+2. Write the result to `docs/product/01-pm-brief.md` in the target product's repo
+   (create `docs/product/` if absent). If the working directory is ambiguous,
+   confirm the path with the user before writing.
+3. Summarize the brief back in chat and end by teeing up the **UX handoff**:
+   "Next: the UX agent reads `01-pm-brief.md` and defines the workflow in
+   `02-ux-workflow.md`."
+
+## Brief template
+
+Copy this structure into `docs/product/01-pm-brief.md`, replacing every
+`<...>` with content from the conversation:
+
+```markdown
+# Product Brief — <Product Name>
+
+> Source of truth for the product's what & why. Written by the Sr. Product
+> Manager. Read by UX next (02-ux-workflow.md). Date: <YYYY-MM-DD>
+
+## 1. Problem & pain
+<What is broken or missing? How acute? Who feels it and how often?>
+
+## 2. Target users & jobs-to-be-done
+<Who are the users (segments)? The job they "hire" this product for?>
+
+## 3. Current alternatives
+<How do users cope today, including "do nothing"? Why insufficient?>
+
+## 4. Value proposition & differentiation
+<Why this, why better than the alternatives? The core promise.>
+
+## 5. Success metrics
+<How will we know it worked? Leading and lagging indicators, targets.>
+
+## 6. Scope & non-goals
+<What this product IS. Explicitly, what it is NOT (for this version).>
+
+## 7. Constraints & risks
+<Budget, time, tech, team, regulatory. The biggest threats.>
+
+## 8. Business model & monetization
+<How it makes money or sustains itself. Pricing posture, if any.>
+
+---
+
+## Decisions (confirmed)
+<What the user explicitly agreed to.>
+
+## Assumptions
+<Things proceeded on without explicit confirmation.>
+
+## Open questions
+<Unresolved items to revisit.>
+
+## Next handoff
+UX agent → reads this brief, runs workflow elicitation, writes
+docs/product/02-ux-workflow.md.
+```
 
 ## Guardrails
 
@@ -241,89 +214,42 @@ When the themes are covered and reflected back:
   Open questions and steer back.
 - Don't invent metrics or business model details — elicit them; if the user
   defers, record under Assumptions/Open questions.
-```
+````
 
-- [ ] **Step 2: Verify frontmatter, the 8 themes, and the handoff line**
+- [ ] **Step 2: Verify frontmatter, the 8 themes, the inlined template, and the handoff**
 
 Run:
 ```bash
 cd ~/Code/Saasless/Agent-C
 awk 'NR==1{print ($0=="---")?"FM_OK":"FM_BAD"} /^name: product-manager$/{print "NAME_OK"}' agents/product-manager/SKILL.md
-grep -c '01-pm-brief.md' agents/product-manager/SKILL.md
-grep -ci 'UX handoff' agents/product-manager/SKILL.md
+grep -cE '^[0-9]+\. \*\*' agents/product-manager/SKILL.md   # 8 themes
+grep -c '01-pm-brief.md' agents/product-manager/SKILL.md     # output path referenced
+grep -c '02-ux-workflow.md' agents/product-manager/SKILL.md  # handoff referenced
 ```
-Expected: `FM_OK` and `NAME_OK` printed; brief-path count ≥ 1; UX-handoff count ≥ 1.
+Expected: `FM_OK` and `NAME_OK` printed; themes count = `8`; output-path count ≥ 1; handoff count ≥ 1.
 
 - [ ] **Step 3: Commit**
 
 ```bash
 cd ~/Code/Saasless/Agent-C
 git add agents/product-manager/SKILL.md
-git commit -m "feat: add Sr. Product Manager skill"
+git commit -m "feat: add Sr. Product Manager skill with inlined brief template"
 ```
 
 ---
 
-### Task 4: Thin `sr-product-manager` agent wrapper
+### Task 3: Symlinks into `~/.claude/skills/`
 
 **Files:**
-- Create: `agent-defs/sr-product-manager.md`
-
-- [ ] **Step 1: Write the agent definition**
-
-Create `agent-defs/sr-product-manager.md` with exactly:
-
-```markdown
----
-name: sr-product-manager
-description: Senior Product Manager agent. Dispatch to run product-definition discovery (the what & why) and produce docs/product/01-pm-brief.md. Use when defining a new product/feature before UX or design work begins.
-tools: Read, Write, Edit, Bash, Skill, AskUserQuestion
----
-
-You are the Senior Product Manager agent. Your entire job is to adopt the Sr. PM
-persona and run the product-definition elicitation.
-
-Do this by invoking the `product-manager` skill (via the Skill tool) and following
-it exactly. The skill is the single source of truth — do not re-implement its
-logic here; the manual path and your orchestrated path must stay identical.
-
-When finished, the `docs/product/01-pm-brief.md` artifact exists and you report
-the path plus a one-paragraph summary and the UX handoff back to the caller.
-```
-
-- [ ] **Step 2: Verify frontmatter and skill reference**
-
-Run:
-```bash
-cd ~/Code/Saasless/Agent-C
-awk 'NR==1{print ($0=="---")?"FM_OK":"FM_BAD"} /^name: sr-product-manager$/{print "NAME_OK"}' agent-defs/sr-product-manager.md
-grep -c 'product-manager. skill' agent-defs/sr-product-manager.md
-```
-Expected: `FM_OK` and `NAME_OK` printed; skill-reference count ≥ 1.
-
-- [ ] **Step 3: Commit**
-
-```bash
-cd ~/Code/Saasless/Agent-C
-git add agent-defs/sr-product-manager.md
-git commit -m "feat: add thin sr-product-manager agent wrapper"
-```
-
----
-
-### Task 5: Symlinks into `~/.claude/`
-
-**Files:**
-- Create (symlinks, outside repo): `~/.claude/skills/elicitation`, `~/.claude/skills/product-manager`, `~/.claude/agents/sr-product-manager.md`
+- Create (symlinks, outside repo): `~/.claude/skills/elicitation`, `~/.claude/skills/product-manager`
 
 - [ ] **Step 1: Create the symlinks**
 
 Run:
 ```bash
-mkdir -p ~/.claude/skills ~/.claude/agents
+mkdir -p ~/.claude/skills
 ln -sfn ~/Code/Saasless/Agent-C/agents/elicitation ~/.claude/skills/elicitation
 ln -sfn ~/Code/Saasless/Agent-C/agents/product-manager ~/.claude/skills/product-manager
-ln -sfn ~/Code/Saasless/Agent-C/agent-defs/sr-product-manager.md ~/.claude/agents/sr-product-manager.md
 ```
 
 - [ ] **Step 2: Verify the symlinks resolve to the canonical files**
@@ -332,74 +258,121 @@ Run:
 ```bash
 test -f ~/.claude/skills/elicitation/SKILL.md && echo ELICIT_OK
 test -f ~/.claude/skills/product-manager/SKILL.md && echo PM_OK
-test -f ~/.claude/skills/product-manager/brief-template.md && echo TEMPLATE_OK
-test -f ~/.claude/agents/sr-product-manager.md && echo AGENT_OK
-ls -l ~/.claude/skills/elicitation ~/.claude/skills/product-manager ~/.claude/agents/sr-product-manager.md | grep -c '>'
+ls -l ~/.claude/skills/elicitation ~/.claude/skills/product-manager | grep -c '>'
 ```
-Expected: `ELICIT_OK`, `PM_OK`, `TEMPLATE_OK`, `AGENT_OK` printed; final count = `3` (all three are symlinks).
+Expected: `ELICIT_OK`, `PM_OK` printed; final count = `2` (both are symlinks).
 
-- [ ] **Step 3: Verify skills are discoverable by description probe**
+No commit (symlinks live outside the repo).
+
+---
+
+### Task 4: Verify the skill actually loads (not just that strings exist)
+
+**Files:** none (verification only)
+
+- [ ] **Step 1: Confirm both skills are discoverable via the description probe**
+
+This is the same probe Claude Code/Desktop skill discovery uses.
 
 Run:
 ```bash
 grep -Hm1 '^description:' ~/.claude/skills/elicitation/SKILL.md ~/.claude/skills/product-manager/SKILL.md
 ```
-Expected: both description lines print (this is the same probe `/run` and skill discovery use).
+Expected: both description lines print, each prefixed with the resolved (symlinked) path.
 
-No commit (symlinks live outside the repo). Done.
-
----
-
-### Task 6: End-to-end dry check of the artifact path
-
-**Files:**
-- Temporary: `/tmp/agentc-pm-smoke/docs/product/01-pm-brief.md` (smoke only, deleted after)
-
-- [ ] **Step 1: Verify the template renders into the expected handoff doc location**
-
-This confirms the output mechanism the PM skill relies on works, without needing a full conversation.
+- [ ] **Step 2: Validate the YAML frontmatter parses (catches load-breaking errors)**
 
 Run:
 ```bash
-mkdir -p /tmp/agentc-pm-smoke/docs/product
-cp ~/Code/Saasless/Agent-C/agents/product-manager/brief-template.md /tmp/agentc-pm-smoke/docs/product/01-pm-brief.md
-test -f /tmp/agentc-pm-smoke/docs/product/01-pm-brief.md && echo HANDOFF_PATH_OK
-grep -c '02-ux-workflow.md' /tmp/agentc-pm-smoke/docs/product/01-pm-brief.md
-rm -rf /tmp/agentc-pm-smoke
+for f in ~/.claude/skills/elicitation/SKILL.md ~/.claude/skills/product-manager/SKILL.md; do
+  awk 'NR==1&&$0!="---"{print "BAD_OPEN "FILENAME; exit 1}
+       NR>1&&$0=="---"{print "FM_CLOSED "FILENAME; exit 0}
+       NR>1&&/^(name|description):/{ok=1}
+       END{if(!ok)print "NO_FIELDS"}' "$f"
+done
 ```
-Expected: `HANDOFF_PATH_OK` printed; ux-handoff reference count ≥ 1.
+Expected: `FM_CLOSED <path>` printed for both (frontmatter block opens at line 1 and closes), no `BAD_OPEN`/`NO_FIELDS`.
 
-- [ ] **Step 2: Confirm git tree is clean and all four canonical files are tracked**
+- [ ] **Step 3: Live load check (in the Claude session, not bash)**
+
+In the running Claude Code/Desktop session, invoke the Skill tool on `product-manager`.
+Expected: the skill content loads with no "skill not found" / parse error, and the
+Sr. Product Manager instructions appear. If it fails to resolve, the symlink or
+frontmatter is wrong — fix before proceeding to Task 5.
+
+---
+
+### Task 5: Run the real elicitation — define Agent-C itself (INTERACTIVE)
+
+**Files:**
+- Create: `docs/product/01-pm-brief.md`
+
+> This task is a live conversation with the user; it cannot be done by an
+> autonomous subagent. Run it in the main session.
+
+- [ ] **Step 1: Invoke the skill against Agent-C as the subject**
+
+Invoke the `product-manager` skill. Seed it: the product under definition is
+**Agent-C — the multi-agent development system itself** (PM/UX/UI/architect/
+engineer/QA role-skills orchestrated to design, build, test, and iterate
+software). Conduct the 8-theme elicitation one question at a time.
+
+- [ ] **Step 2: Write the brief**
+
+Per the skill, fill the inlined template and write `docs/product/01-pm-brief.md`
+in the Agent-C repo. Reflect the decisions back to the user for confirmation
+before finalizing.
+
+- [ ] **Step 3: Verify the brief is complete**
 
 Run:
 ```bash
 cd ~/Code/Saasless/Agent-C
-git status --porcelain
-git ls-files agents agent-defs | sort
+test -f docs/product/01-pm-brief.md && echo BRIEF_EXISTS
+grep -cE '^## [1-8]\.' docs/product/01-pm-brief.md          # 8 themes filled
+grep -cE '^## (Decisions|Assumptions|Open questions|Next handoff)' docs/product/01-pm-brief.md
 ```
-Expected: `git status` prints nothing (clean); `ls-files` lists exactly
-`agent-defs/sr-product-manager.md`, `agents/elicitation/SKILL.md`,
-`agents/product-manager/SKILL.md`, `agents/product-manager/brief-template.md`.
+Expected: `BRIEF_EXISTS`; themes count = `8`; closing-sections count = `4`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+cd ~/Code/Saasless/Agent-C
+git add docs/product/01-pm-brief.md
+git commit -m "docs: Agent-C product brief (Sr. PM elicitation)"
+```
+
+---
+
+## Deferred to a later phase (NOT built now)
+
+- **`sr-product-manager` agent wrapper** (`agent-defs/sr-product-manager.md`):
+  a thin subagent that invokes the `product-manager` skill. Deferred because
+  (a) there is no orchestrator in Phase 1 to dispatch it, and (b) it assumes —
+  unverified — that a subagent can invoke the `Skill` tool. Build it in the phase
+  that adds the Orchestrator, where it can actually be exercised and that
+  assumption tested. The manual Desktop path (`/product-manager`) needs no wrapper.
+- **UX, UI, Architect, Engineer, QA skills** and the **Orchestrator** agent —
+  same skill-first pattern, later phases.
 
 ---
 
 ## Self-Review
 
 **Spec coverage:**
-- Unit 1 `elicitation` skill → Task 1. ✓
-- Unit 2 `product-manager` skill + brief template → Tasks 2 & 3. ✓
-- Unit 3 `sr-product-manager` wrapper → Task 4. ✓
-- Repo + symlinks decision → Task 5. ✓
-- 8 PM themes → Task 2 (template) & Task 3 (skill), verified by grep. ✓
-- Versioned-doc handoff (`01-pm-brief.md` → UX) → Tasks 2/3 content + Task 6 check. ✓
-- Phase-1 success criteria (skills symlinked/discoverable, brief produced, UX teed up) → Tasks 5 & 6. ✓
-- Out-of-scope roles (UX/UI/architect/eng/QA/orchestrator) → not built, correct.
+- `elicitation` skill → Task 1. ✓
+- `product-manager` skill + brief template (now inlined) → Task 2. ✓
+- Repo + symlinks → Task 3. ✓
+- Skill actually loads (addresses review item #3) → Task 4. ✓
+- 8 PM themes → Task 2 content, grep-verified = 8. ✓
+- Versioned-doc handoff (`01-pm-brief.md` → `02-ux-workflow.md`) → Task 2 + Task 5. ✓
+- Real elicitation producing the first brief, subject = Agent-C (addresses review
+  item #1) → Task 5. ✓
+- Agent wrapper correctly deferred (review item #4) → Deferred section. ✓
 
-**Placeholder scan:** No TBD/TODO. The `<...>` angle brackets in the brief
-template are intentional fill-in guidance for the human/PM, not plan placeholders;
-every skill/agent file is given in full.
+**Placeholder scan:** No TBD/TODO. `<...>` in the brief template is intentional
+fill-in guidance, not a plan placeholder; both skill files are given in full.
 
-**Type/name consistency:** skill names `elicitation`, `product-manager`, agent
-`sr-product-manager`, output `docs/product/01-pm-brief.md`, handoff
-`docs/product/02-ux-workflow.md` are used identically across all tasks and the
-verification greps.
+**Type/name consistency:** skill names `elicitation`, `product-manager`; output
+`docs/product/01-pm-brief.md`; handoff `docs/product/02-ux-workflow.md` — used
+identically across all tasks and verification greps.
