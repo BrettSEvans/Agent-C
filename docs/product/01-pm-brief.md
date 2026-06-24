@@ -3,6 +3,10 @@
 > Source of truth for the product's what & why. Written by the Sr. Product
 > Manager. Read by UX next (02-ux-workflow.md). Date: 2026-06-23
 
+**Product type:** Agentic / conversational developer tool (CLI-style, driven
+through Claude Code/Desktop skills & subagents) — no GUI screens; downstream
+stages design text/interaction touchpoints, not graphical screens.
+
 ## 1. Problem & pain
 Coding by ad-hoc prompting forces the developer to re-explain context every
 session and to personally orchestrate every step of the work. Two pains bite

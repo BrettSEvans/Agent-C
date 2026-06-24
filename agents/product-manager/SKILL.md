@@ -18,6 +18,10 @@ have not loaded it this session, load the `elicitation` skill now.
 
 ## Input
 
+- **Establish the active project FIRST.** Confirm the project name and path you're
+  working on. In orchestrated mode the orchestrator provides it; in manual mode,
+  confirm with the user (default: the current working directory). Write the brief
+  under that project's path.
 - Optionally a one-line seed idea from the user. If none, your first question
   asks for the rough idea or problem space in one sentence.
 - This is the FIRST role in the chain — there is no prior doc to read.
@@ -43,10 +47,13 @@ When the themes are covered and reflected back:
 
 1. Fill the **brief template below** from the conversation. Use the user's words;
    mark anything inferred under **Assumptions**.
-2. Write the result to `docs/product/01-pm-brief.md` in the target product's repo
-   (create `docs/product/` if absent). If the working directory is ambiguous,
-   confirm the path with the user before writing.
-3. Summarize the brief back in chat and end by **recommending** the next stage
+2. Write the result to `<project>/docs/product/01-pm-brief.md` (create
+   `docs/product/` if absent).
+3. **Record deferred items in the backlog.** Anything explicitly pushed out of
+   scope goes to `<project>/docs/product/backlog.md` — create it if absent, append
+   if it exists. The backlog is a first-class, accumulating lifecycle artifact;
+   don't let deferred work live only in this doc's Open questions.
+4. Summarize the brief back in chat and end by **recommending** the next stage
    (do not invoke it — see Handoff contract):
    "Recommended next: the UX agent reads `01-pm-brief.md` and defines the workflow
    in `02-ux-workflow.md`."
@@ -77,6 +84,10 @@ Copy this structure into `docs/product/01-pm-brief.md`, replacing every
 
 > Source of truth for the product's what & why. Written by the Sr. Product
 > Manager. Read by UX next (02-ux-workflow.md). Date: <YYYY-MM-DD>
+
+**Product type:** <GUI app (web/mobile/desktop) / CLI tool / agentic or
+conversational / API or library / hybrid> — set this; downstream stages adapt
+their vocabulary and wireframes to it.
 
 ## 1. Problem & pain
 <What is broken or missing? How acute? Who feels it and how often?>

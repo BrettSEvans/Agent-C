@@ -19,10 +19,30 @@ have not loaded it this session, load the `elicitation` skill now.
 
 ## Input
 
-- **Required:** `docs/product/01-pm-brief.md` (the product brief). Read it first.
-  If it is missing, STOP and tell the caller the PM stage must run first — do not
-  invent the product's what/why.
+- **Establish the active project FIRST.** Confirm which project you're working on
+  — its name and path. In orchestrated mode the orchestrator provides it; in
+  manual mode, confirm with the user (default: the current working directory).
+  Read and write all artifacts under that project's path.
+- **Required:** `<project>/docs/product/01-pm-brief.md` (the product brief). Read
+  it first. If it is missing, STOP and tell the caller the PM stage must run first
+  — do not invent the product's what/why.
 - Ground every flow in the brief's jobs-to-be-done and scope.
+
+## Product type (establish first)
+
+Not every product has GUI screens. Before the themes, determine the product type
+(from the brief; confirm if unclear) and adapt the vocabulary accordingly:
+
+| Product type | "Screens/views" become… | Wireframes become… |
+|---|---|---|
+| **GUI app** (web/mobile/desktop) | screens & views | ASCII screen layouts + Mermaid flows |
+| **CLI / terminal tool** | commands & output surfaces | sample transcripts + Mermaid flows |
+| **Agentic / conversational** | touchpoints (a turn, a prompt, a listing) | transcripts + dashboard sketches + flows |
+| **API / library** | endpoints / functions & their contracts | call/response examples + sequence diagrams |
+
+Record the determined product type at the top of the workflow doc. The themes
+below are **surface-neutral** — read "screen/view" as "interaction surface" for
+non-GUI products.
 
 ## The themes to cover
 
@@ -31,12 +51,15 @@ theme is adequately answered (one probing follow-up on vague answers).
 
 1. **Primary user flows** — turn the brief's jobs-to-be-done into concrete
    step-by-step flows (the main paths a user takes to get value).
-2. **Entry points & information architecture** — how users get in, the top-level
-   structure, and how they navigate between areas.
-3. **Key screens/views & purpose** — what views exist and what each is *for*
+2. **Entry points & structure** — how users get in, the top-level structure, and
+   how they move between areas (navigation for a GUI; command/entry surface for a
+   CLI or agentic tool).
+3. **Key interaction surfaces & purpose** — the screens/views (GUI), commands/
+   touchpoints (CLI/agentic), or endpoints (API) that exist and what each is *for*
    (structure and content, NOT styling).
-4. **States & feedback** — empty, loading, success, and error states; how the
-   system responds to user actions.
+4. **States & feedback** — the states each surface can be in and how the system
+   responds (e.g. empty/loading/success/error for a GUI; idle/working/awaiting-
+   input/done for a CLI or agent).
 5. **Edge cases & off-happy-path** — what happens when things go wrong, inputs are
    invalid, or the user does the unexpected.
 6. **Workflow constraints** — platform, accessibility, and scope boundaries (from
@@ -46,13 +69,17 @@ theme is adequately answered (one probing follow-up on vague answers).
 
 After the themes are covered, **ask the user** whether they want wireframes. If
 yes, produce **low-fidelity** artifacts only — deliberately ugly, structure-first,
-so they don't poach the UI stage's look-and-feel:
+so they don't poach the UI stage's look-and-feel. Match the form to the product
+type (see the table above):
 
-- **Screen layouts** as plain ASCII/markdown boxes.
-- **User flows** as Mermaid diagrams (```mermaid flowchart).
+- **GUI:** screen layouts as plain ASCII/markdown boxes.
+- **CLI / agentic:** sample transcripts and ASCII dashboard/listing sketches.
+- **API/library:** call/response examples or sequence diagrams.
+- **Always useful:** **user/process flows** as Mermaid diagrams
+  (```mermaid flowchart).
 
-Write them to `docs/product/wireframes/` (create it if absent), one file per
-screen or flow, present them for the user's approval, and reference them from
+Write them to `<project>/docs/product/wireframes/` (create it if absent), one file
+per surface or flow, present them for the user's approval, and reference them from
 `02-ux-workflow.md`. If the user declines, skip — note it under Assumptions.
 
 ## Output
@@ -60,8 +87,13 @@ screen or flow, present them for the user's approval, and reference them from
 When the themes are covered, reflected back, and wireframes resolved:
 
 1. Fill the **workflow template below** from the conversation.
-2. Write the result to `docs/product/02-ux-workflow.md` in the project's repo.
-3. Summarize back in chat and **recommend** the next stage (do not invoke it —
+2. Write the result to `<project>/docs/product/02-ux-workflow.md`.
+3. **Record deferred items in the backlog.** Anything explicitly pushed out of
+   scope (deferred edge cases, "later" ideas) goes to
+   `<project>/docs/product/backlog.md` — create it if absent, append if it exists.
+   The backlog is a first-class, accumulating lifecycle artifact; don't let
+   deferred work live only in this doc's Open questions.
+4. Summarize back in chat and **recommend** the next stage (do not invoke it —
    see Handoff contract):
    "Recommended next: the UI agent reads `02-ux-workflow.md` and defines the look
    and feel in `03-ui-direction.md`."
