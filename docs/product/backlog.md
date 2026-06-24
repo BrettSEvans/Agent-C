@@ -14,6 +14,17 @@
   instead of crashing. *Deferred:* depends on registry design; shown in the
   dashboard wireframe for shape only.
 
+## Process / skill notes (deferred from UX gap-review, 2026-06-23)
+
+- **Gap #3 — orchestrator-UX sequencing tension.** Defining the UX of Agent-C
+  forces decisions about the *orchestrator's* interaction (dashboard, registry
+  states, command surface, skip-stage) even though the orchestrator is built last.
+  When building the orchestrator/architect stages, treat `02-ux-workflow.md`'s
+  touchpoints/states/commands as input requirements rather than re-deriving them.
+- **Gap #5 — states vs. edge cases overlap (minor).** In the UX skill, theme 4
+  (states & feedback) and theme 5 (edge cases) blur (e.g. revision count is both).
+  Low priority wording cleanup for a future skill edit.
+
 ## Notes
 - "Stage run out of order" is NOT here — it's handled in v1 (each stage skill
   checks for its required input and stops).
