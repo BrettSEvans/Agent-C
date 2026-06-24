@@ -14,6 +14,16 @@
   instead of crashing. *Deferred:* depends on registry design; shown in the
   dashboard wireframe for shape only.
 
+## User-customized skills (deferred from critic review, 2026-06-24)
+
+- **Per-user skill customization** — Agent-C should know which user is running it
+  and generate personalized sub-skills tailored to that user (their preferences,
+  past projects, workflow). This requires user identification / login. *Deferred to
+  post-v1* because v1 is single-user/personal-machine context; full value of
+  per-user skills emerges when the tool is shared or used by teams. Requires
+  implementation of user handling, identity, and skill generation/persistence.
+  Build for: post-v1 or future phase when multi-user context is relevant.
+
 ## Process / skill notes (deferred from UX gap-review, 2026-06-23)
 
 - **Gap #3 — orchestrator-UX sequencing tension.** Defining the UX of Agent-C

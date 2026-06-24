@@ -3,9 +3,9 @@
 > Source of truth for the product's what & why. Written by the Sr. Product
 > Manager. Read by UX next (02-ux-workflow.md). Date: 2026-06-23
 
-**Product type:** Agentic / conversational developer tool (CLI-style, driven
-through Claude Code/Desktop skills & subagents) — no GUI screens; downstream
-stages design text/interaction touchpoints, not graphical screens.
+**Product type:** Agentic / conversational developer tool, designed for **Claude Desktop** (not Code) — skill-driven, no GUI screens; downstream stages design text/interaction touchpoints, not graphical screens.
+
+**Claude model:** Sonnet (Claude 3.5 Sonnet minimum for PM, UX, UI stages). Later stages (architect/engineer/QA) to determine their model requirements.
 
 ## 1. Problem & pain
 Coding by ad-hoc prompting forces the developer to re-explain context every
@@ -46,10 +46,16 @@ design, and code.
 
 ## 6. Scope & non-goals
 **In scope for v1 — a thin slice through the entire lifecycle:** one basic agent
-per stage across the whole loop (PM → UX → UI → architect → engineer → QA) plus
-an orchestrator, proving the full idea→shipped loop before deepening any single
-agent. The Sr. Product Manager agent is built first as the entry point. Each role
-is a skill, usable manually and via orchestration; handoffs are versioned docs.
+per stage across the whole loop (PM → UX → UI → architect → engineer → QA),
+proving the full idea→shipped loop before deepening any single agent. The Sr.
+Product Manager agent is built first as the entry point. Each role is a skill,
+usable manually via Desktop; handoffs are versioned docs.
+
+**Stage checkpoints & resumption:** Each stage maintains a checkpoint/plan showing
+what steps have been completed. If interrupted mid-elicitation, the user can
+resume from the last completed step (not from scratch). This requires each stage
+to track progress — marking themes answered, sections filled — and presenting that
+state on resumption.
 
 **Multi-project support (core capability):** Agent-C manages multiple concurrent,
 isolated projects. Each project lives at its **own configurable location** on
@@ -63,16 +69,7 @@ handoff docs/artifacts live in that project's own folder; the registry is the
 cross-project index. (Registry format/location and stage-tracking mechanism are an
 architecture-stage concern.)
 
-**Orchestration & handoff model:** the **orchestrator** ("project manager" agent)
-is the single owner of lifecycle sequencing, the project registry, and the
-per-stage approval gates. Stage agents (PM, UX, UI, …) are workers that don't know
-about each other: each reads the prior stage's artifact, runs its elicitation,
-writes its own artifact, then **returns control and recommends the next stage** —
-it never directly invokes the next agent. The orchestrator presents each artifact
-for user approval, updates the registry (stage → complete), and decides whether to
-proceed, pause, or switch projects. This degrades gracefully: in manual use (e.g.
-Claude Desktop) the **user is the orchestrator** — same skills, the registry and
-gates are handled by hand.
+**Orchestration & handoff model:** **the user is the orchestrator** (Desktop has no subagents, so orchestration is manual in v1). The user owns lifecycle sequencing, the project registry, and the per-stage approval gates. Stage agents (PM, UX, UI, …) are workers that don't know about each other: each reads the prior stage's artifact, runs its elicitation, writes its own artifact, then **returns control and recommends the next stage** — it never directly invokes the next agent. The user presents each artifact for approval, updates the registry (stage → complete), and decides whether to proceed, pause, or switch projects. (Future: orchestrator subagent to automate this, after v1 proves out.)
 
 **Explicit non-goals (v1):**
 - NOT a hosted SaaS / web app — it's a local package/repo run in the user's own
@@ -116,9 +113,14 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
   its own configurable path (no shared root required); a central registry/
   dashboard tracks each project's location and current stage; any project is
   resumable at any stage; existing external directories can be adopted.
-- **Orchestrator owns the flow:** it controls sequencing, the registry, and
-  approval gates. Stage agents return control + recommend the next stage; they
-  never auto-chain. In manual use the user is the orchestrator (same skills).
+- **User is the orchestrator (v1):** Desktop has no subagents, so orchestration is
+  manual. The user controls sequencing, registry, and approval gates. Stage agents
+  return control + recommend the next stage; they never auto-chain.
+- **Claude Sonnet for PM/UX/UI stages:** minimum Claude 3.5 Sonnet. Later stages
+  determine their own model requirements.
+- **Stage checkpointing:** each stage tracks and marks completed steps (themes,
+  sections answered). On resumption after interruption, the user picks up from the
+  last completed step, not from scratch.
 - Non-goals: not SaaS, not multi-user, not stack-specific.
 - Monetization deferred.
 
@@ -135,7 +137,7 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
 - Concrete targets for secondary metrics (adoption, retention).
 - Monetization model (free OSS vs. open-core vs. paid).
 - Distribution mechanism that avoids the home-dir symlink approach used in the
-  builder's own setup (installer / packaging strategy).
+  builder's own setup (installer / packaging strategy) — for Desktop installation.
 - Project registry mechanism (where the registry lives, its format, how a
   project's current/completed stages are recorded and updated on handoff, and how
   adopting an external directory works) — to be designed at the architect stage.
