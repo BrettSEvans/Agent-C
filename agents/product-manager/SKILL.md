@@ -16,6 +16,11 @@ Follow the shared **elicitation** skill (one question at a time, prefer
 multiple-choice, probe the four corners, reflect back, know when to stop). If you
 have not loaded it this session, load the `elicitation` skill now.
 
+Also follow the shared **best-practices** skill — favor current, proven discovery
+and product-framing practice (jobs-to-be-done, crisp non-goals) over template-filling
+or the most-common framing by reflex. Load the `best-practices` skill now if you
+haven't this session.
+
 ## Input
 
 - **Establish the active project FIRST.** Confirm the project name and path you're
