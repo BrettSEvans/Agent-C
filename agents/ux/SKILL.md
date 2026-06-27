@@ -1,6 +1,6 @@
 ---
 name: ux
-description: Use when defining a product's workflow and user experience after the product brief exists - a UX agent that reads the PM brief, runs a one-question-at-a-time discovery across user flows, information architecture, screens, states, edge cases, and constraints, optionally produces low-fi wireframes for approval, and writes a UX workflow doc that hands off to UI. Triggers - "define the workflow", "UX", "user flows", "wireframes", "how should this work".
+description: Define a product's workflow and user experience. Works in dual modes - reads existing PM brief if available (full Agent-C workflow), or reverse-engineers from an existing site/product (standalone jump-in). Runs elicitation across user flows, information architecture, screens, states, edge cases, and constraints. Optionally produces low-fi wireframes. Writes UX workflow doc. Triggers - "define the workflow", "UX", "user flows", "wireframes", "how should this work", "review the flows of".
 ---
 
 # UX Agent
@@ -13,9 +13,23 @@ capture it under Open questions for UI and steer back.
 
 ## Method
 
-Follow the shared **elicitation** skill (one question at a time, prefer
+This skill has two phases:
+
+**Phase 1: Analysis**
+- **Mode A (workflow):** Read the PM brief (`01-pm-brief.md`). Understand the product's purpose, jobs-to-be-done, scope, and constraints.
+- **Mode B (jump-in):** Analyze the existing product. Reverse-engineer its workflows, information architecture, key surfaces, and user interactions. Then report findings.
+
+Both modes: Report findings back to the user before proceeding. Let them confirm/correct your understanding.
+
+**Phase 2: Elicitation**
+Once analysis is confirmed, follow the shared **elicitation** skill (one question at a time, prefer
 multiple-choice, probe the four corners, reflect back, know when to stop). If you
 have not loaded it this session, load the `elicitation` skill now.
+
+**Throughout: Best practices.** Follow the shared **best-practices** skill — choose
+current, proven interaction and information-architecture patterns that fit the job,
+not the most ubiquitous layout by default. Load the `best-practices` skill now if you
+haven't this session.
 
 ## Input
 
@@ -23,10 +37,31 @@ have not loaded it this session, load the `elicitation` skill now.
   — its name and path. In orchestrated mode the orchestrator provides it; in
   manual mode, confirm with the user (default: the current working directory).
   Read and write all artifacts under that project's path.
-- **Required:** `<project>/docs/product/01-pm-brief.md` (the product brief). Read
-  it first. If it is missing, STOP and tell the caller the PM stage must run first
-  — do not invent the product's what/why.
-- Ground every flow in the brief's jobs-to-be-done and scope.
+
+### Dual-mode operation
+
+This skill supports two entry points:
+
+**Mode A: Full workflow (documents exist)**
+- `<project>/docs/product/01-pm-brief.md` (the product brief) ✓ available
+- Action: Read it; extract product type, jobs-to-be-done, scope, and users. Ground every flow in these.
+
+**Mode B: Standalone jump-in (documents missing)**
+- `01-pm-brief.md` does not exist
+- Action: Ask the user for product context directly (see "Elicitation fallback" below). Reverse-engineer from the existing site/codebase. Produce the same output, noting in Assumptions that it's a standalone pass.
+
+**Determine mode:** Check if `docs/product/01-pm-brief.md` exists. If yes, Mode A. If no, Mode B.
+
+### Elicitation fallback (Mode B)
+
+If the brief is missing, ask the user to provide:
+1. **Product name and core purpose** — what is it, who is it for, what problem does it solve?
+2. **Product type** — GUI app, CLI, agentic/conversational, API/library? (See Product type table below.)
+3. **Jobs-to-be-done or main user goals** — what does the user want to accomplish? (Describe 2–3 key goals.)
+4. **Current state** — (a) Describe the existing site/app structure and key features, OR (b) Show/link to existing product so I can reverse-engineer it.
+5. **Key constraints or boundaries** — scope limits, platform constraints, or audience tone?
+
+Once you have context, determine the product type and proceed with the six themes (below) using elicitation.
 
 ## Important: UX vs. orchestrator scope
 
@@ -41,10 +76,37 @@ structure, fields, and sorting. That IS UX work (what the user needs to see to
 make decisions). *How* the registry persists and updates that data is the
 orchestrator's concern. Define the interface, not the backend.
 
+## Analysis phase
+
+### Mode A: Workflow analysis
+Read `01-pm-brief.md`. Extract and report:
+- **Product name, purpose, and scope**
+- **Product type** (GUI app, CLI, agentic, API)
+- **Jobs-to-be-done** — the main user goals
+- **Target users** and their context
+- **Key constraints** — scope, platform, accessibility, etc.
+- **Success criteria** — how will we know it's working?
+
+Then summarize back to the user: "Here's what I understand about the product and its purpose. Does this match your brief?"
+
+### Mode B: Jump-in analysis
+Analyze the existing product. Read relevant code, pages, and documentation. Report:
+- **Product type** (GUI app, web page, CLI, etc.)
+- **Current workflows** — key user journeys and how users move through the product
+- **Information architecture** — structure, navigation, major sections
+- **Key surfaces/screens** — major pages/views and what they're for
+- **Current states and feedback** — how the product responds to user actions
+- **Strengths** — what workflows are working well
+- **Gaps or pain points** — where the experience could be improved
+- **Accessibility features** — navigation patterns, form handling, responsive behavior
+
+Then ask the user: "Is this accurate? What workflows would you like to refine or change?"
+
+Both modes, conclude the analysis with: "Ready to dive into the workflow themes?"
+
 ## Product type (establish first)
 
-Not every product has GUI screens. Before the themes, determine the product type
-(from the brief; confirm if unclear) and adapt the vocabulary accordingly:
+Not every product has GUI screens. In Mode A, read the brief's **Product type**. In Mode B, infer from the existing site. Either way, adapt the vocabulary accordingly:
 
 | Product type | "Screens/views" become… | Wireframes become… |
 |---|---|---|
@@ -110,23 +172,21 @@ When the themes are covered, reflected back, and wireframes resolved:
    deferred work live only in this doc's Open questions.
 4. Summarize back in chat and **recommend** the next stage (do not invoke it —
    see Handoff contract):
-   "Recommended next: the UI agent reads `02-ux-workflow.md` and defines the look
-   and feel in `03-ui-direction.md`."
+   - **Mode A (full workflow):** "Recommended next: the UI agent reads `02-ux-workflow.md` and defines the look and feel in `03-ui-direction.md`."
+   - **Mode B (standalone):** "This standalone UX workflow is now ready for implementation or for integration into the full Agent-C workflow later."
 
 ## Handoff contract
 
-This agent is one stage in an orchestrated lifecycle. Sequencing, the project
-registry, and approval gates are owned by the **orchestrator**. In manual use
-(e.g. Claude Desktop) *you* are the orchestrator.
+This agent can operate in two modes:
 
-- **Read your input from the prior stage.** Require `01-pm-brief.md`; operate on
-  the project path the caller gives you.
-- **Return control; do not auto-chain.** Once `02-ux-workflow.md` is written,
-  STOP. Recommend the next stage and the doc it reads, then hand control back to
-  the caller. Never directly invoke the UI agent.
-- **Recommend, don't decide.** The orchestrator (or human) approves the artifact,
-  updates the project registry (this stage → complete), and chooses whether to
-  proceed, pause, or switch projects.
+**Mode A: Orchestrated lifecycle** — one stage in the full Agent-C workflow. Sequencing, the project registry, and approval gates are owned by the **orchestrator**. In manual use (e.g. Claude Desktop) *you* are the orchestrator.
+
+**Mode B: Standalone** — apply this skill to an existing product outside the full workflow. Same output format; no orchestrator context needed.
+
+**Both modes:**
+- Determine mode by checking for `01-pm-brief.md`. If missing, enter Mode B and ask the user for context.
+- **Return control; do not auto-chain.** Once `02-ux-workflow.md` is written, STOP. Recommend the next stage and the doc it reads, then hand control back to the caller. Never directly invoke the UI agent.
+- **Recommend, don't decide.** The orchestrator (or human) approves the artifact, updates the project registry, and chooses whether to proceed, pause, or switch projects.
 
 ## Workflow template
 
@@ -190,9 +250,11 @@ it, you may freely rewrite:
 **Preserve this contract so the lifecycle keeps working:**
 
 - Keep the frontmatter `name: ux` and a descriptive `description`.
-- Keep reading `docs/product/01-pm-brief.md` as required input.
+- Keep **dual-mode operation**: support both full-workflow mode (documents exist) and standalone mode (jump-in to an existing product). Always check for `01-pm-brief.md` and adapt.
 - Keep writing the output to `docs/product/02-ux-workflow.md`.
 - Keep following the shared `elicitation` method.
+- Keep following the shared `best-practices` skill — choose current, proven UX
+  patterns over the most-common layout by reflex.
 - Keep the **Handoff contract**: return control and recommend the next stage;
   never auto-chain into the UI agent.
 - Stay at workflow altitude (no visual styling — that's the UI agent).
