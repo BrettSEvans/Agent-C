@@ -51,6 +51,14 @@ This skill supports two entry points:
 
 **Determine mode:** Check if `docs/product/02-ux-workflow.md` exists. If yes, Mode A. If no, Mode B.
 
+**Mode C — feature jump-in.** If the work is *one feature on an existing product*,
+follow the shared **feature-mode** skill: read/create `docs/project-profile.md`,
+write the feature-scoped direction to `docs/features/<slug>/03-feature-ui.md`, and
+**conform** to the existing design system (tokens, type, components) — extend it,
+don't restyle. Here the *Taste & originality* test inverts: not "could this be any
+product?" but "does this look like it was always part of *this* product?" Load the
+`feature-mode` skill now if you haven't.
+
 ### Elicitation fallback (Mode B)
 
 If artifacts are missing, ask the user to provide:

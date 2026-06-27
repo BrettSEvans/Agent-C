@@ -21,6 +21,13 @@ and product-framing practice (jobs-to-be-done, crisp non-goals) over template-fi
 or the most-common framing by reflex. Load the `best-practices` skill now if you
 haven't this session.
 
+**Feature mode.** If the work is *one feature on an existing product* (not a whole
+new product), follow the shared **feature-mode** skill: scope the brief to the
+feature's *why* within the product's existing goals and users — don't re-litigate
+the whole product — and write it to `docs/features/<slug>/01-feature-brief.md`. Work
+the 8 themes below lightly, only as far as the feature needs. Load the `feature-mode`
+skill now if you haven't this session.
+
 ## Input
 
 - **Establish the active project FIRST.** Confirm the project name and path you're

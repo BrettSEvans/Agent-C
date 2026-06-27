@@ -52,6 +52,12 @@ This skill supports two entry points:
 
 **Determine mode:** Check if `docs/product/01-pm-brief.md` exists. If yes, Mode A. If no, Mode B.
 
+**Mode C — feature jump-in.** If the work is *one feature on an existing product*
+(not a whole product), follow the shared **feature-mode** skill: read/create
+`docs/project-profile.md`, write the feature-scoped workflow to
+`docs/features/<slug>/02-feature-ux.md`, and **conform** to the existing information
+architecture and navigation. Load the `feature-mode` skill now if you haven't.
+
 ### Elicitation fallback (Mode B)
 
 If the brief is missing, ask the user to provide:
