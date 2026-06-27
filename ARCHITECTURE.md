@@ -59,10 +59,14 @@ Three kinds of skill live in `agents/`:
 | [`ui`](agents/ui/SKILL.md) | Role (stage 3) | Define **look, feel, taste & voice**. Carries the taste; guards against AI slop. Optional mockups. | `01`/`02` → `03-ui-direction.md` |
 | [`architect`](agents/architect/SKILL.md) | Role (stage 4) | Define the **technical architecture** — structure, runtime, data, decisions. Optional diagrams. | `01`/`02`/`03` → `04-architecture.md` |
 | [`engineer`](agents/engineer/SKILL.md) | Role (stage 5) | **Implement** in working, tested code — greenfield, existing-codebase, or feature. Conforms to conventions; verifies; never auto-deploys. | `01`–`04` → code + `05-implementation.md` |
+| [`qa`](agents/qa/SKILL.md) | Role (stage 6) | **Verify** the implementation against the artifacts — acceptance criteria, flows/states/edge cases, build/tests, conformance, a11y, regressions. Reports a verdict; doesn't block. | `01`–`05` + code → `qa-report` |
 | [`critic`](agents/critic/SKILL.md) | Quality | Review PM/UX/UI artifacts across 8 criteria, max two passes; reports to the human gate (does not block). | any artifact → `critic-reports/` |
 
-**Not yet built:** `qa` (stage 6) and the **orchestrator** (owns the registry +
-approval gates). See §8.
+**Not yet built:** the **orchestrator** (owns the registry + approval gates). See §8.
+
+> **`qa` vs. `critic`:** the critic reviews *upstream artifacts* (PM/UX/UI docs)
+> before they're approved; QA verifies the *implementation* against those artifacts
+> after the engineer builds.
 
 ---
 
@@ -75,7 +79,8 @@ flowchart LR
     UX -->|02-ux-workflow.md| UI[ui]
     UI -->|03-ui-direction.md| ARCH[architect]
     ARCH -->|04-architecture.md| ENG[engineer]
-    ENG -->|code + 05-implementation.md| QA[qa*]
+    ENG -->|code + 05-implementation.md| QA[qa]
+    QA -->|qa-report| ship([ship])
 
     CRITIC{{critic}} -.reviews.-> PM
     CRITIC -.reviews.-> UX
@@ -85,7 +90,7 @@ flowchart LR
     ORCH -.owns approval gate between every stage.-> PM
 
     classDef todo stroke-dasharray: 5 5;
-    class QA,ORCH todo;
+    class ORCH todo;
 ```
 
 `* = not yet built.` Each arrow is an **approval gate**: the human (or orchestrator)
@@ -186,21 +191,22 @@ ln -s "$(pwd)/agents/<name>" ~/.claude/skills/<name>
 The canonical file is `agents/<name>/SKILL.md`; the symlink makes it live in the
 user's skill directory. Editing the repo file edits the live skill. Current links:
 `elicitation`, `best-practices`, `feature-mode`, `product-manager`, `ux`, `ui`,
-`architect`, `engineer`, `critic`.
+`architect`, `engineer`, `qa`, `critic`.
 
 ---
 
 ## 8. Build status
 
 **Built:** `elicitation`, `best-practices`, `feature-mode`, `product-manager`, `ux`,
-`ui`, `architect`, `engineer`, `critic` — all symlinked, with the operating-modes +
-analysis + handoff contract + customizing structure.
+`ui`, `architect`, `engineer`, `qa`, `critic` — all symlinked, with the
+operating-modes + analysis + handoff contract + customizing structure. **All six
+lifecycle roles (PM → UX → UI → architect → engineer → QA) now exist**, completing
+the thin slice through the whole lifecycle.
 
 **Approach to v1:** a thin slice through the *whole* lifecycle (all roles shallow)
 before deepening any one.
 
 **Not yet built:**
-- `qa` (stage 6) role skill — same pattern.
 - The **orchestrator** — owns the project registry, stage sequencing, and approval
   gates. It consumes the UX workflow's touchpoints/states and the architect's
   registry/state design as *requirements*. Until it exists, the **human is the
@@ -246,6 +252,7 @@ Agent-C/
 │   ├── ui/                    # stage 3 — look & feel → 03-ui-direction.md
 │   ├── architect/             # stage 4 — architecture → 04-architecture.md
 │   ├── engineer/              # stage 5 — implementation → code + 05-implementation.md
+│   ├── qa/                    # stage 6 — verification → qa-report
 │   └── critic/                # quality review of PM/UX/UI artifacts
 ├── agent-defs/                # (reserved) thin agent wrappers
 └── docs/
