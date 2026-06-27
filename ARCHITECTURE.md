@@ -53,14 +53,16 @@ Three kinds of skill live in `agents/`:
 |---|---|---|---|
 | [`elicitation`](agents/elicitation/SKILL.md) | Shared method | The discipline of eliciting well — one question at a time, probe the four corners, reflect back, know when to stop. | invoked by every role |
 | [`best-practices`](agents/best-practices/SKILL.md) | Shared method | Choose current, proven best practice over the most-frequently-seen pattern; guards against frequency bias *and* its opposite (novelty-chasing). "Best practice is craft, not sameness." | invoked by every role |
+| [`feature-mode`](agents/feature-mode/SKILL.md) | Shared method | **Mode C** — jump into an existing codebase to build *one feature*: profile the project once, scope artifacts under `docs/features/<slug>/`, right-size the pipeline, and **conform** to existing conventions. | invoked by any role doing feature work |
 | [`product-manager`](agents/product-manager/SKILL.md) | Role (stage 1) | Define the **what & why** — problem, users/JTBD, value, scope, metrics. | (seed) → `01-pm-brief.md` |
 | [`ux`](agents/ux/SKILL.md) | Role (stage 2) | Define **how it works** — flows, IA, screens-as-structure, states. Optional low-fi wireframes. | `01` → `02-ux-workflow.md` |
 | [`ui`](agents/ui/SKILL.md) | Role (stage 3) | Define **look, feel, taste & voice**. Carries the taste; guards against AI slop. Optional mockups. | `01`/`02` → `03-ui-direction.md` |
 | [`architect`](agents/architect/SKILL.md) | Role (stage 4) | Define the **technical architecture** — structure, runtime, data, decisions. Optional diagrams. | `01`/`02`/`03` → `04-architecture.md` |
+| [`engineer`](agents/engineer/SKILL.md) | Role (stage 5) | **Implement** in working, tested code — greenfield, existing-codebase, or feature. Conforms to conventions; verifies; never auto-deploys. | `01`–`04` → code + `05-implementation.md` |
 | [`critic`](agents/critic/SKILL.md) | Quality | Review PM/UX/UI artifacts across 8 criteria, max two passes; reports to the human gate (does not block). | any artifact → `critic-reports/` |
 
-**Not yet built:** `engineer` (stage 5, implements from `01`–`04`), `qa` (stage 6),
-and the **orchestrator** (owns the registry + approval gates). See §8.
+**Not yet built:** `qa` (stage 6) and the **orchestrator** (owns the registry +
+approval gates). See §8.
 
 ---
 
@@ -72,8 +74,8 @@ flowchart LR
     PM -->|01-pm-brief.md| UX[ux]
     UX -->|02-ux-workflow.md| UI[ui]
     UI -->|03-ui-direction.md| ARCH[architect]
-    ARCH -->|04-architecture.md| ENG[engineer*]
-    ENG -->|implementation| QA[qa*]
+    ARCH -->|04-architecture.md| ENG[engineer]
+    ENG -->|code + 05-implementation.md| QA[qa*]
 
     CRITIC{{critic}} -.reviews.-> PM
     CRITIC -.reviews.-> UX
@@ -83,12 +85,16 @@ flowchart LR
     ORCH -.owns approval gate between every stage.-> PM
 
     classDef todo stroke-dasharray: 5 5;
-    class ENG,QA,ORCH todo;
+    class QA,ORCH todo;
 ```
 
 `* = not yet built.` Each arrow is an **approval gate**: the human (or orchestrator)
 reviews the artifact and decides whether to proceed, revise, pause, or switch
 projects. Deferred items accumulate in `docs/product/backlog.md` at every stage.
+
+The same roles also run in **Mode C (feature jump-in)** against an existing product
+via the `feature-mode` skill — the pipeline is right-sized and artifacts are scoped
+under `docs/features/<slug>/` (see §5).
 
 Side artifacts a stage may produce: `wireframes/` (UX, low-fi), `mockups/` (UI,
 shows the aesthetic), `diagrams/` (architect, Mermaid).
@@ -105,8 +111,8 @@ extend:
 2. **Method** — two phases: **Analysis** (Mode A reads artifacts / Mode B
    reverse-engineers, then reports and confirms) → **Elicitation** (via the shared
    `elicitation` skill). Plus a "throughout" pointer to `best-practices`.
-3. **Dual-mode operation + elicitation fallback** — how to detect the mode and what
-   to ask when upstream artifacts are missing.
+3. **Operating modes + elicitation fallback** — how to detect Mode A/B/C and what to
+   ask when upstream artifacts are missing (Mode C defers to `feature-mode`).
 4. **Product-type step** — adapt vocabulary/outputs to GUI / CLI / agentic / API.
 5. **Themes** — the role's question bank, worked one at a time.
 6. **Optional visual artifact** — wireframes / mockups / diagrams, offered not
@@ -118,19 +124,27 @@ extend:
 
 ---
 
-## 5. Dual-mode operation
+## 5. Operating modes
 
-Each role decides its mode by checking for its **upstream artifact**:
+Each role can run in one of three modes:
 
 - **Mode A — full workflow:** the upstream doc exists (e.g. UI finds
   `02-ux-workflow.md`). Read it; proceed as designed.
 - **Mode B — standalone jump-in:** the upstream doc is missing. Ask the user for
-  context and **reverse-engineer** the existing product/codebase, producing the
-  same first-class artifact.
+  context and **reverse-engineer** the existing product to produce the same
+  first-class *whole-product* artifact (documenting what exists).
+- **Mode C — feature jump-in:** design/build **one feature inside an existing
+  product**. The product is context and constraint; the deliverable is a
+  *feature-scoped* artifact (or code) that **conforms** as if it had always been
+  there. Driven by the shared [`feature-mode`](agents/feature-mode/SKILL.md) skill:
+  profile the project once into `docs/project-profile.md`, scope artifacts under
+  `docs/features/<slug>/`, right-size which stages run, and conform rather than
+  reinvent (the *Taste & originality* test inverts to "does this look like it was
+  always part of *this* product?").
 
-This means any single skill can be applied to an existing, externally-built project
-without running the whole pipeline. Full mechanics and the adaptation template are
-in [docs/DUAL-MODE-SKILL-PATTERN.md](docs/DUAL-MODE-SKILL-PATTERN.md).
+Modes A/B mechanics and the adaptation template are in
+[docs/DUAL-MODE-SKILL-PATTERN.md](docs/DUAL-MODE-SKILL-PATTERN.md); Mode C is fully
+specified in the `feature-mode` skill.
 
 ---
 
@@ -151,6 +165,10 @@ Beyond the two shared method skills, these patterns run through every role:
   offloading design decisions onto a user who may have none), leads with a design
   concept, avoids the generic defaults by name, and passes the "only this product"
   distinctiveness test.
+- **Conform-don't-reinvent (feature mode)** — when working on a feature inside an
+  existing product, "best practice" and "taste" invert toward **fitting the existing
+  conventions**; new patterns are the justified exception, not the default. Carried
+  by the `feature-mode` skill.
 - **Backlog as a first-class artifact** — anything deferred is appended to
   `docs/product/backlog.md` so it isn't lost in a single doc's open questions.
 - **Establish the active project first** — supports concurrent multi-project work.
@@ -167,22 +185,22 @@ ln -s "$(pwd)/agents/<name>" ~/.claude/skills/<name>
 
 The canonical file is `agents/<name>/SKILL.md`; the symlink makes it live in the
 user's skill directory. Editing the repo file edits the live skill. Current links:
-`elicitation`, `best-practices`, `product-manager`, `ux`, `ui`, `architect`,
-`critic`.
+`elicitation`, `best-practices`, `feature-mode`, `product-manager`, `ux`, `ui`,
+`architect`, `engineer`, `critic`.
 
 ---
 
 ## 8. Build status
 
-**Built:** `elicitation`, `best-practices`, `product-manager`, `ux`, `ui`,
-`architect`, `critic` — all symlinked, with the dual-mode + analysis + handoff
-contract + customizing structure.
+**Built:** `elicitation`, `best-practices`, `feature-mode`, `product-manager`, `ux`,
+`ui`, `architect`, `engineer`, `critic` — all symlinked, with the operating-modes +
+analysis + handoff contract + customizing structure.
 
 **Approach to v1:** a thin slice through the *whole* lifecycle (all roles shallow)
 before deepening any one.
 
 **Not yet built:**
-- `engineer` (stage 5) and `qa` (stage 6) role skills — same pattern.
+- `qa` (stage 6) role skill — same pattern.
 - The **orchestrator** — owns the project registry, stage sequencing, and approval
   gates. It consumes the UX workflow's touchpoints/states and the architect's
   registry/state design as *requirements*. Until it exists, the **human is the
@@ -222,18 +240,24 @@ Agent-C/
 ├── agents/                    # canonical skills (symlinked into ~/.claude/skills/)
 │   ├── elicitation/           # shared method: how to elicit
 │   ├── best-practices/        # shared method: choose current best practice
+│   ├── feature-mode/          # shared method: Mode C — feature jump-in
 │   ├── product-manager/       # stage 1 — what & why → 01-pm-brief.md
 │   ├── ux/                    # stage 2 — how it works → 02-ux-workflow.md
 │   ├── ui/                    # stage 3 — look & feel → 03-ui-direction.md
 │   ├── architect/             # stage 4 — architecture → 04-architecture.md
+│   ├── engineer/              # stage 5 — implementation → code + 05-implementation.md
 │   └── critic/                # quality review of PM/UX/UI artifacts
 ├── agent-defs/                # (reserved) thin agent wrappers
 └── docs/
     ├── DUAL-MODE-SKILL-PATTERN.md
-    └── product/               # Agent-C's own lifecycle artifacts
+    └── product/               # Agent-C's own lifecycle artifacts (whole-product)
         ├── 01-pm-brief.md
         ├── 02-ux-workflow.md
         ├── backlog.md
         ├── wireframes/
         └── critic-reports/
+
+# In a target project, feature work (Mode C) adds:
+#   <project>/docs/project-profile.md          # reverse-engineered conventions
+#   <project>/docs/features/<slug>/01-feature-brief.md … 05-implementation.md
 ```

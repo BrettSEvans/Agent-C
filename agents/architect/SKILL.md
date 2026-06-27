@@ -57,6 +57,14 @@ This skill supports two entry points:
 
 **Determine mode:** Check if `docs/product/03-ui-direction.md` exists. If yes, Mode A (read it plus any of `02`/`01` present). If no, Mode B. (If some but not all upstream docs exist, read what's there and note the gap under Assumptions.)
 
+**Mode C — feature jump-in.** If the work is *one feature on an existing product*,
+follow the shared **feature-mode** skill: read/create `docs/project-profile.md`,
+write the feature-scoped architecture to
+`docs/features/<slug>/04-feature-architecture.md`, and **fit the existing
+architecture** — name the integration points, reuse existing patterns/services, and
+justify any new dependency against the profile. Load the `feature-mode` skill now if
+you haven't.
+
 ### Elicitation fallback (Mode B)
 
 If artifacts are missing, ask the user to provide:
