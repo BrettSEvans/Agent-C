@@ -1,0 +1,418 @@
+/* ─── Custom properties ──────────────────────────────────────────────────── */
+:root {
+  /* Base palette */
+  --bg-deep:        #0a0a0a;
+  --bg-dark:        #111111;
+  --bg-mid:         #1a1a1a;
+  --bg-sidebar:     #0f1817;
+  --bg-sidebar-hi:  #1a2a2f;
+
+  /* Steel-blue accent */
+  --accent:         #1f5f7f;
+  --accent-hi:      #2a7fa0;
+  --accent-text:    #a0d8f0;
+
+  /* Text */
+  --text-primary:   #e0e0e0;
+  --text-secondary: #999999;
+  --text-muted:     #666666;
+
+  /* Borders */
+  --border:         #333333;
+  --border-hi:      #444444;
+
+  /* Status */
+  --status-warn:    #d97706;
+  --status-error:   #dc2626;
+  --status-ok:      #16a34a;
+
+  /* Spacing */
+  --sidebar-width:  260px;
+  --radius-sm:      2px;
+  --radius:         4px;
+
+  /* Transitions */
+  --transition:     0.15s ease;
+}
+
+/* ─── Reset & base ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-deep);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Brushed-steel texture — sidebar ───────────────────────────────────── */
+/* Overlapping micro-strokes at three angles simulate hand-buffed steel.    */
+/* Adjust opacity values to tune intensity; angle values to change pattern. */
+.sidebar {
+  position: relative;
+  background:
+    linear-gradient(135deg, var(--bg-sidebar-hi) 0%, var(--bg-sidebar) 50%, var(--bg-sidebar-hi) 100%);
+  overflow: hidden;
+}
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      18deg,
+      transparent 0px,
+      transparent 0.8px,
+      rgba(180, 200, 210, 0.04) 0.8px,
+      rgba(180, 200, 210, 0.04) 1.2px,
+      transparent 1.2px,
+      transparent 2.4px
+    ),
+    repeating-linear-gradient(
+      -22deg,
+      transparent 0px,
+      transparent 0.5px,
+      rgba(140, 160, 170, 0.03) 0.5px,
+      rgba(140, 160, 170, 0.03) 0.9px,
+      transparent 0.9px,
+      transparent 2.0px
+    ),
+    repeating-linear-gradient(
+      82deg,
+      transparent 0px,
+      transparent 1.0px,
+      rgba(200, 215, 220, 0.02) 1.0px,
+      rgba(200, 215, 220, 0.02) 1.4px,
+      transparent 1.4px,
+      transparent 3.0px
+    );
+  z-index: 0;
+}
+.sidebar > * { position: relative; z-index: 1; }
+
+/* ─── Brushed-steel texture — main pane ─────────────────────────────────── */
+/* Organic radial patches simulate natural wear and light variation.        */
+.main-pane {
+  background: linear-gradient(to bottom, var(--bg-deep) 0%, var(--bg-mid) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.main-pane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 182px 234px at 12% 8%,  rgba(80,  90,  95,  0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 156px 208px at 78% 14%, rgba(120, 130, 135, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 130px 182px at 35% 30%, rgba(180, 190, 195, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 170px 220px at 88% 42%, rgba(95,  105, 110, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 124px 176px at 55% 55%, rgba(150, 160, 165, 0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 195px 240px at 18% 68%, rgba(70,  80,  85,  0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 143px 195px at 70% 75%, rgba(110, 120, 125, 0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 162px 210px at 42% 88%, rgba(165, 175, 180, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 136px 184px at 92% 92%, rgba(85,  95, 100,  0.07) 0%, transparent 65%);
+  z-index: 0;
+}
+.main-pane > * { position: relative; z-index: 1; }
+
+/* ─── App layout ─────────────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "sidebar main"
+    "sidebar footer";
+  height: 100%;
+}
+
+.sidebar      { grid-area: sidebar; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+.main-pane    { grid-area: main; overflow-y: auto; }
+footer.footer { grid-area: footer; }
+
+/* ─── Sidebar internals ──────────────────────────────────────────────────── */
+.sidebar__search {
+  padding: 12px 10px 8px;
+}
+
+.sidebar__search input {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 8px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.sidebar__search input:focus { border-color: var(--accent-hi); }
+.sidebar__search input::placeholder { color: var(--text-muted); }
+
+.sidebar__section { padding: 4px 0 8px; }
+
+.sidebar__section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 6px 12px 4px;
+}
+
+.sidebar__empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.sidebar-item:hover { background: var(--bg-mid); }
+.sidebar-item--active {
+  background: rgba(31, 95, 127, 0.15);
+  border-left-color: var(--accent-hi);
+}
+
+.sidebar-item__name { flex: 1; font-weight: 500; }
+
+.sidebar-item__stage {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-item__approval {
+  color: var(--status-warn);
+  font-size: 11px;
+}
+
+/* ─── Main pane empty state ──────────────────────────────────────────────── */
+.main-pane__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+}
+
+/* ─── Project detail ─────────────────────────────────────────────────────── */
+.project-detail {
+  padding: 28px 32px;
+  max-width: 760px;
+}
+
+.project-detail__header { margin-bottom: 20px; }
+
+.project-detail__name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.project-detail__path {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-family: monospace;
+}
+
+.project-detail__approval-warning {
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: var(--radius);
+  color: #fbbf24;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+
+.project-detail__stage-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.stage-badge {
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: 10px 20px;
+  border-radius: var(--radius);
+}
+
+.project-detail__revisions {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ─── Git state ──────────────────────────────────────────────────────────── */
+.project-detail__git {
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 22px;
+}
+
+.git-state__row {
+  display: flex;
+  gap: 24px;
+  color: var(--text-primary);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.git-state__meta { font-size: 11px; color: var(--text-muted); }
+.git-state__fresh { color: var(--status-ok); }
+.git-state__age   { color: var(--text-secondary); }
+
+.git-state__files {
+  list-style: none;
+  margin: 6px 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.git-state__file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+}
+.git-state__file-label {
+  font-size: 10px;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  min-width: 56px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.git-state__file-label--modified  { background: rgba(200, 150,  50, 0.18); color: #c89632; }
+.git-state__file-label--added     { background: rgba( 80, 160,  80, 0.18); color: #50a050; }
+.git-state__file-label--deleted   { background: rgba(190,  60,  60, 0.18); color: #be3c3c; }
+.git-state__file-label--renamed   { background: rgba( 80, 120, 200, 0.18); color: #5078c8; }
+.git-state__file-label--untracked { background: rgba(120, 120, 120, 0.18); color: var(--text-muted); }
+.git-state__file-path { color: var(--text-secondary); }
+
+.git-state--computing,
+.git-state--failed {
+  color: var(--text-secondary);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.git-state--failed { color: var(--status-error); }
+
+/* ─── Actions ────────────────────────────────────────────────────────────── */
+.project-detail__actions { margin-top: 4px; }
+
+/* ─── Feature detail ─────────────────────────────────────────────────────── */
+.feature-detail { padding: 0; }
+.feature-detail__breadcrumb { padding: 12px 32px 0; }
+.feature-detail__tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 6px 32px 0;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border: 1px solid var(--accent-hi);
+  padding: 10px 18px;
+}
+.btn--primary:hover { background: var(--accent-hi); border-color: #3a9fc0; }
+
+.btn--sm {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  font-size: 11px;
+}
+.btn--sm:hover { border-color: var(--border-hi); color: var(--text-primary); }
+
+.btn--link {
+  background: none;
+  border: none;
+  color: var(--accent-text);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.btn--link:hover { color: var(--text-primary); }
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-dark);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ─── Focus rings (keyboard nav) ─────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-hi);
+  outline-offset: 2px;
+}

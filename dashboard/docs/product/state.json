@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "track": {
+    "type": "product",
+    "name": "Agent-C Dashboard",
+    "slug": null,
+    "productType": "GUI app"
+  },
+  "currentStage": "engineer",
+  "stages": {
+    "pm":       { "status": "approved-complete", "revisions": 0, "criticPasses": 0, "checkpoint": null },
+    "ux":       { "status": "approved-complete", "revisions": 0, "criticPasses": 0, "checkpoint": null },
+    "ui":       { "status": "approved-complete", "revisions": 0, "criticPasses": 0, "checkpoint": null },
+    "architect":{ "status": "approved-complete", "revisions": 1, "criticPasses": 1, "checkpoint": null },
+    "engineer": { "status": "awaiting-approval", "revisions": 0, "criticPasses": 0, "checkpoint": null },
+    "qa":       { "status": "not-started",       "revisions": 0, "criticPasses": 0, "checkpoint": null }
+  },
+  "pendingFeedback": null,
+  "updatedAt": "2026-06-28T00:40:00Z"
+}
