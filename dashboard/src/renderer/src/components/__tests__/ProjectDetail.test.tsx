@@ -36,6 +36,16 @@ const state: ProjectState = {
   updatedAt: '2026-06-28T00:00:00Z'
 }
 
+const stateWithFeedback: ProjectState = {
+  ...state,
+  pendingFeedback: {
+    stage: 'ux',
+    source: 'user',
+    text: 'Flows section too thin; add resume-project flow.',
+    reportPath: null
+  }
+}
+
 const freshGit: GitState = {
   uncommittedCount: 3,
   uncommittedFiles: [
@@ -71,7 +81,16 @@ describe('ProjectDetail', () => {
   it('shows the approval warning when status is awaiting-approval', () => {
     render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
     expect(screen.getByRole('alert')).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent(/approval needed/i)
+  })
+
+  it('approval warning describes a pending revision when pendingFeedback is set', () => {
+    render(<ProjectDetail entry={entry} projectState={stateWithFeedback} gitState={freshGit} />)
+    expect(screen.getByRole('alert')).toHaveTextContent(/revision requested/i)
+  })
+
+  it('approval warning describes ready-for-approval when no pendingFeedback', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    expect(screen.getByRole('alert')).toHaveTextContent(/awaiting your approval/i)
   })
 
   it('does not show the approval warning when status is in-progress', () => {
@@ -86,17 +105,84 @@ describe('ProjectDetail', () => {
     expect(screen.getByText(/1 unpushed/i)).toBeInTheDocument()
   })
 
-  it('shows "Open in orchestrator" button', () => {
+  // ── Info button / popup ──────────────────────────────────────────────────
+
+  it('shows the info button when approval is needed', () => {
     render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
-    expect(screen.getByRole('button', { name: /open in orchestrator/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /show approval details/i })).toBeInTheDocument()
   })
 
-  it('clicking "Open in orchestrator" fires the api call', () => {
-    const mockApi = { copyOrchestratorCommand: vi.fn() }
+  it('does not show the info button when no approval is needed', () => {
+    const inProgress = { ...entry, status: 'in-progress' as const, needsYou: false }
+    render(<ProjectDetail entry={inProgress} projectState={state} gitState={freshGit} />)
+    expect(screen.queryByRole('button', { name: /show approval details/i })).not.toBeInTheDocument()
+  })
+
+  it('clicking info button shows the popup dialog', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('popup shows revision and critic pass counts', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent(/revisions.*2/i)
+    expect(screen.getByRole('dialog')).toHaveTextContent(/critic passes.*1/i)
+  })
+
+  it('popup shows pending feedback text when pendingFeedback is set', () => {
+    render(<ProjectDetail entry={entry} projectState={stateWithFeedback} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent(/flows section too thin/i)
+  })
+
+  it('closing the popup removes the dialog', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  // ── Claude Prompt button ─────────────────────────────────────────────────
+
+  it('shows "Claude Prompt" button', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    expect(screen.getByRole('button', { name: /copy claude prompt/i })).toBeInTheDocument()
+  })
+
+  it('clicking "Claude Prompt" fires the copyText api call', () => {
+    const mockApi = { copyText: vi.fn() }
     Object.defineProperty(window, 'api', { value: mockApi, writable: true })
     render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
-    fireEvent.click(screen.getByRole('button', { name: /open in orchestrator/i }))
-    expect(mockApi.copyOrchestratorCommand).toHaveBeenCalledWith('Tiffany')
+    fireEvent.click(screen.getByRole('button', { name: /copy claude prompt/i }))
+    expect(mockApi.copyText).toHaveBeenCalled()
+  })
+
+  it('copies /orchestrator prompt when awaiting approval with no pending feedback', () => {
+    const mockApi = { copyText: vi.fn() }
+    Object.defineProperty(window, 'api', { value: mockApi, writable: true })
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /copy claude prompt/i }))
+    expect(mockApi.copyText).toHaveBeenCalledWith(expect.stringMatching(/orchestrator/i))
+  })
+
+  it('copies /skill revision prompt when pendingFeedback is set', () => {
+    const mockApi = { copyText: vi.fn() }
+    Object.defineProperty(window, 'api', { value: mockApi, writable: true })
+    render(<ProjectDetail entry={entry} projectState={stateWithFeedback} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /copy claude prompt/i }))
+    expect(mockApi.copyText).toHaveBeenCalledWith(expect.stringMatching(/revision requested/i))
+  })
+
+  it('copies next-stage prompt when approved-complete with no git work', () => {
+    const mockApi = { copyText: vi.fn() }
+    Object.defineProperty(window, 'api', { value: mockApi, writable: true })
+    const approved = { ...entry, status: 'approved-complete' as const, currentStage: 'ux' as const }
+    const cleanGit: GitState = { uncommittedCount: 0, uncommittedFiles: [], unpushedCount: 0, computedAt: new Date().toISOString(), status: 'fresh' }
+    render(<ProjectDetail entry={approved} projectState={state} gitState={cleanGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /copy claude prompt/i }))
+    expect(mockApi.copyText).toHaveBeenCalledWith(expect.stringMatching(/ui/i))
   })
 
   describe('copied toast', () => {
@@ -105,14 +191,14 @@ describe('ProjectDetail', () => {
 
     it('shows a toast after clicking the button', () => {
       render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
-      fireEvent.click(screen.getByRole('button', { name: /open in orchestrator/i }))
+      fireEvent.click(screen.getByRole('button', { name: /copy claude prompt/i }))
       expect(screen.getByRole('status')).toBeInTheDocument()
       expect(screen.getByRole('status')).toHaveTextContent(/paste into claude desktop/i)
     })
 
     it('toast disappears after 5 seconds', () => {
       render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
-      fireEvent.click(screen.getByRole('button', { name: /open in orchestrator/i }))
+      fireEvent.click(screen.getByRole('button', { name: /copy claude prompt/i }))
       expect(screen.getByRole('status')).toBeInTheDocument()
       act(() => { vi.advanceTimersByTime(5000) })
       expect(screen.queryByRole('status')).not.toBeInTheDocument()

@@ -6,7 +6,7 @@ import { readState } from '../services/state-reader'
 import { gitService } from '../services/git-service'
 import { WatcherService } from '../services/watcher-service'
 import { createPersistence } from '../services/persistence'
-import { copyOrchestratorCommand } from '../services/clipboard-service'
+import { copyText } from '../services/clipboard-service'
 import type { GitState, RegistryEntry, ProjectState } from '../../shared/types'
 
 const REGISTRY_PATH =
@@ -74,9 +74,9 @@ export function registerIpcHandlers(win: BrowserWindow, userDataPath: string): v
   })
 
   ipcMain.handle(
-    'copy-orchestrator-command',
-    (_event, projectName: string): void => {
-      copyOrchestratorCommand(projectName)
+    'copy-text',
+    (_event, text: string): void => {
+      copyText(text)
     }
   )
 

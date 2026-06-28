@@ -1,5 +1,5 @@
 import { clipboard } from 'electron'
 
-export function copyOrchestratorCommand(projectName: string): void {
-  clipboard.writeText(`/orchestrator ${projectName}`)
+export function copyText(text: string): void {
+  clipboard.writeText(text)
 }

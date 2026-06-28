@@ -79,8 +79,8 @@ clipboard-service ┘                                               components (
   `state.json`; emits change events to the renderer.
 - **persistence** — reads/writes the recently-opened list and git-state cache in
   Electron userData.
-- **clipboard-service** — writes the `/orchestrator <project>` command to the
-  clipboard for the launch action.
+- **clipboard-service** — `copyText(text)` writes arbitrary text to the clipboard;
+  the renderer builds the context-aware prompt and passes it in.
 
 **Renderer:**
 - **Zustand store** — single source of UI truth: projects, selected project, git
@@ -123,8 +123,11 @@ projects current in the sidebar.
 **Manual refresh:** the refresh button calls `window.api.refreshGit(path)`, which
 bypasses cache and recomputes that project's git state now.
 
-**Open in orchestrator:** `clipboard-service` copies `/orchestrator <project>`; the
-UI shows a brief "copied — paste into Claude" confirmation (warm-tone toast).
+**Claude Prompt:** `clipboard-service` copies a context-aware prompt built in the
+renderer from stage, status, pendingFeedback, and git state (revision prompt /
+orchestrator hand-off / next-stage advancement / commit reminder). A circular
+brushed-steel info button in the approval warning row opens a popup with the full
+approval detail. The UI shows a brief "copied — paste into Claude" toast.
 
 ## 5. Data model & state
 
@@ -181,7 +184,7 @@ so user/orchestrator-supplied paths can't inject.
 | Git concurrency | **Shared limiter, cap 6** (e.g. p-limit) | Bounds resource use across 100 repos; keeps UI responsive | Unbounded fan-out (resource spikes); serial (too slow) | Predictable load; large batches take longer but never thrash |
 | File watching | **chokidar: registry.json + all state.json**; git stays lazy | Keeps the *sidebar* (state-driven) live for un-opened projects; relies on orchestrator touching registry on every transition | Watch-on-open only (sidebar goes stale — rejected); watch whole `~/.agent-c/` (more I/O) | Sidebar stays fresh; **depends on the orchestrator-touches-registry contract** |
 | IPC | **Preload contextBridge** | Secure (sandboxed renderer), typed, clean `window.api.*` calls | `ipcRenderer.send/on` (more boilerplate, less safe) | Must maintain the bridge surface as the single API |
-| Orchestrator launch | **Clipboard copy of `/orchestrator <project>`** | Only reliable, cross-platform v1 hand-off; no deep-link contract exists | Deep link / trigger-file / shell-out (unspecified, fragile) | One manual paste; revisit a real launch protocol in v2 |
+| Orchestrator launch | **Clipboard copy via `copyText(text)`; prompt built in renderer** | Renderer has full state context (stage/status/feedback/git) to build the right prompt; clipboard-service stays generic | Fixed `/orchestrator <name>` string (too dumb — ignores pending feedback and next-stage context) | One manual paste; prompt is context-aware; revisit a real launch protocol in v2 |
 | Persistence | **Electron userData (JSON)** | Standard, survives restarts; right size for recent list + git cache | IndexedDB; SQLite; in-memory | Simple; cache can be stale across restarts → revalidate on launch + show age |
 
 ## 8. Cross-cutting concerns
@@ -252,7 +255,9 @@ runtime paths; architecture diagrams can be added later if useful.)
   **orchestrator touches registry.json on every state transition** to drive
   sidebar freshness.
 - Sidebar git icons populated by a **background batch compute** (cap 6), cache-first.
-- "Open in orchestrator" = **copy `/orchestrator <project>` to the clipboard** (v1).
+- "Claude Prompt" = **copy a context-aware prompt to the clipboard** (v1); prompt
+  is built in the renderer from stage/status/pendingFeedback/git state via
+  `clipboard-service.copyText(text)`.
 - Preload contextBridge for IPC; persistence in Electron userData.
 
 ## Assumptions

@@ -320,6 +320,188 @@ footer.footer { grid-area: footer; }
     inset 0  1px 0 rgba(251,191,36,0.15),
     inset 0 -1px 0 rgba(0,0,0,0.40),
     0 2px 6px rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-detail__approval-text {
+  flex: 1;
+}
+
+/* ─── Info button ─────────────────────────────────────────────────────────── */
+/* Circular brushed-steel disc with a teal accent ring, styled to match       */
+/* the project's radial-metal button language. Italic "i" in a serif face     */
+/* gives the classic information-button look.                                  */
+.info-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  padding: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  background: radial-gradient(
+    ellipse 130% 110% at var(--rx, 50%) var(--ry, 28%),
+    #e8e8e8  0%,
+    #c8c8c8 28%,
+    #9a9a9a 55%,
+    #6a6a6a 78%,
+    #484848 100%
+  );
+
+  /* Inner bevel matches .btn; outer teal glow ring echoes the image's blue rim */
+  border: 1.5px solid var(--accent);
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.65),
+    inset 0 -1px 0 rgba(0,0,0,0.45),
+    0 0 0 2px rgba(42,127,160,0.35),
+    0 2px 6px rgba(0,0,0,0.60);
+
+  /* Serif italic for the "i" glyph — Space Grotesk lacks the traditional form */
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1a1a1a;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.50);
+  transition: filter 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+  outline: none;
+}
+
+.info-btn:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.75),
+    inset 0 -1px 0 rgba(0,0,0,0.40),
+    0 0 0 2px rgba(42,127,160,0.55),
+    0 3px 10px rgba(0,0,0,0.65);
+}
+
+.info-btn:active {
+  filter: brightness(0.88);
+  transform: scale(0.94);
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.30),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    0 0 0 2px rgba(42,127,160,0.25),
+    0 1px 3px rgba(0,0,0,0.50);
+}
+
+.info-btn:focus-visible {
+  outline: 2px solid var(--accent-hi);
+  outline-offset: 3px;
+}
+
+/* ─── Info popup ──────────────────────────────────────────────────────────── */
+.info-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-popup {
+  background:
+    radial-gradient(ellipse 140% 80% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 65%),
+    var(--bg-mid);
+  border: 1px solid var(--border-hi);
+  border-radius: 12px;
+  padding: 20px 24px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.40),
+    0 8px 32px rgba(0,0,0,0.80),
+    0 2px 8px rgba(0,0,0,0.50);
+}
+
+.info-popup__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.info-popup__title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fbbf24;
+  line-height: 1.4;
+}
+
+.info-popup__close {
+  color: var(--text-muted);
+  font-size: 14px;
+  flex-shrink: 0;
+  padding: 0;
+}
+.info-popup__close:hover { color: var(--text-primary); }
+
+.info-popup__meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.info-popup__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.info-popup__body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.info-popup__feedback {
+  font-size: 12px;
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.30);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  line-height: 1.6;
+  max-height: 180px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.info-popup__report {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  margin-top: 8px;
+}
+
+.info-popup__next {
+  font-size: 12px;
+  color: var(--accent-text);
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  line-height: 1.55;
 }
 
 .project-detail__stage-section {

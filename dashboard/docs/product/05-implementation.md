@@ -57,8 +57,8 @@ dashboard/
     │       │                                     #   gitService (cap-6 via createLimiter)
     │       ├── watcher-service.ts                # chokidar EventEmitter
     │       ├── persistence.ts                    # MRU recent list + git cache (userData JSON)
-    │       └── clipboard-service.ts              # copyOrchestratorCommand
-    ├── preload/index.ts                          # contextBridge window.api
+    │       └── clipboard-service.ts              # copyText(text) — copies arbitrary prompt text
+    ├── preload/index.ts                          # contextBridge window.api (incl. copyText)
     └── renderer/
         ├── index.html                            # no external font/CDN links; tight CSP
         └── src/
@@ -69,7 +69,7 @@ dashboard/
             ├── styles/globals.css                # full design system (see Visual design below)
             └── components/
                 ├── Sidebar.tsx                   # search, recent, all-projects, metal badges
-                ├── ProjectDetail.tsx             # detail pane, file list, toast
+                ├── ProjectDetail.tsx             # detail pane, info button + popup, Claude Prompt
                 ├── FeatureDetail.tsx
                 └── Footer.tsx
 ```
@@ -132,7 +132,17 @@ The authoritative description of what was actually built is in
   (≈ 2/3 the height of the stage badge).
 - **Uncommitted file list:** Colour-coded status pills (amber/green/red/blue/grey)
   shown in the git state card when `uncommittedFiles.length > 0`.
-- **"Open in orchestrator" toast:** 5-second inline status message after click.
+- **Approval warning row:** replaced plain text with an inline layout — circular
+  brushed-steel ⓘ info button (radial gradient, teal `--accent` border + glow ring,
+  serif italic "i") left of a descriptive line. Clicking the button opens a modal
+  popup with stage/status detail, revision/critic-pass counts, full pending-feedback
+  text, and a "next step" line.
+- **"Claude Prompt" button:** renamed from "Open in orchestrator". Copies a
+  context-aware prompt built from stage, status, pendingFeedback, and git state:
+  revision prompt when feedback is pending; `/orchestrator <name>` when awaiting
+  approval with no feedback; next-stage advancement prompt when approved and clean;
+  commit reminder when git work is outstanding.
+- **"Claude Prompt" toast:** 5-second inline status message after click.
 
 ## Test suite (current)
 
@@ -143,10 +153,10 @@ The authoritative description of what was actually built is in
  ✓ src/main/services/__tests__/persistence.test.ts       (7 tests)
  ✓ src/renderer/src/store/__tests__/store.test.ts        (11 tests)
  ✓ src/renderer/src/components/__tests__/Sidebar.test.tsx      (7 tests)
- ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (16 tests)
+ ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (27 tests)
 
  Test Files  7 passed (7)
-      Tests  68 passed (68)
+      Tests  79 passed (79)
 ```
 
 | Suite | Behaviors covered |
@@ -157,7 +167,7 @@ The authoritative description of what was actually built is in
 | persistence | recent save/load; dedup + MRU; trim to 10; git cache save/update/null miss |
 | store | initial state; setProjects; selectProject; updateGitState; isStale fresh/stale/unknown; addRecent dedup; search filter; empty search |
 | Sidebar | search input; project list; approval flag; click → onSelect prop; search filter; recent section conditional; no recent section when empty |
-| ProjectDetail | name/badge/revisions; approval warning; no warning when in-progress; git counts; file list paths; file status labels; no file list when clean; Open in orchestrator button + API call; toast shows on click; toast gone after 5 s; toast absent before click; cached age; failed state |
+| ProjectDetail | name/badge/revisions; approval warning present/absent; revision-requested vs awaiting-approval text; info button visible/hidden; popup opens on click; popup shows feedback text; popup closes; Claude Prompt button + copyText API call; orchestrator prompt when no feedback; revision prompt when feedback set; next-stage prompt when approved+clean; toast shows/hides/absent; cached age; failed state; file list paths/labels/absent-when-clean |
 
 **Visual-only surfaces (not unit-tested — deferred to QA visual/a11y pass):**
 - Radial gradient focal point randomisation (visual output of `useMetalStyle`)

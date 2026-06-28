@@ -13,7 +13,7 @@ declare global {
       readState: (path: string) => Promise<import('../../shared/types').ProjectState | null>
       getGitState: (path: string) => Promise<import('../../shared/types').GitState>
       refreshGit: (path: string) => Promise<import('../../shared/types').GitState>
-      copyOrchestratorCommand: (name: string) => void
+      copyText: (text: string) => Promise<void>
       getRecent: () => Promise<string[]>
       addRecent: (path: string) => Promise<void>
       onRegistryChange: (cb: () => void) => () => void
