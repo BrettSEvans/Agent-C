@@ -48,7 +48,7 @@ The central concept is **cold brushed steel** — engineered, tactile, purposefu
 - **Features list:** Clickable cards (#1a1a1a, 1px #333 border), hover state adds slight background lift (#1f1f1f) and border brightening (#444)
 
 ### Buttons & actions
-- **"Open in orchestrator":** Steel-blue background (#1f5f7f), light text (#a0d8f0), 1px border (#2a7fa0), 13px uppercase, 12-20px padding
+- **"Claude Prompt":** Steel-blue background (#1f5f7f), light text (#a0d8f0), 1px border (#2a7fa0), 13px uppercase, 12-20px padding
 - **Hover:** Darker blue (#2a7fa0) background with brighter border (#3a9fc0)
 - **No rounded corners on buttons** — use 4px for subtle, not trendy
 
@@ -182,7 +182,7 @@ background: radial-gradient(
 ### Buttons: steel plate with bevel rim
 
 Original direction: "Steel-blue background, 4px radius, no rounded corners."
-Actual: All action buttons are now **polished grey steel plates** — radial gradient surface, inset bevel box-shadow (bright top/left rim, dark bottom/right), 10px radius. On click they press down 1px. Hover brightens by 6%. "Open in orchestrator" copies the command and shows a 5-second inline toast ("Copied — paste into Claude Desktop").
+Actual: All action buttons are now **polished grey steel plates** — radial gradient surface, inset bevel box-shadow (bright top/left rim, dark bottom/right), 10px radius. On click they press down 1px. Hover brightens by 6%. "Claude Prompt" copies a context-aware prompt and shows a 5-second inline toast ("Copied — paste into Claude Desktop"). The approval warning row also gained a circular brushed-steel ⓘ info button (same radial-metal treatment, teal `--accent` border + glow ring) that opens a detail popup.
 
 ### Stage badges in sidebar: metallic blue (not flat)
 

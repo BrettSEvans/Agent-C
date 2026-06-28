@@ -44,9 +44,10 @@ cross-platform (macOS/Linux/Windows).
   registry watcher is a reliable "something changed" signal (resolves freshness for
   un-opened projects — see §4).
 - **Local git** — the `git` binary on PATH; repos at each project path.
-- **Claude Desktop / CLI** — the target of the "Open in orchestrator" action.
-  v1 integration is **clipboard hand-off** (copy `/orchestrator <project>`), not a
-  direct invocation (no reliable cross-app deep-link exists; see §6/ADR).
+- **Claude Desktop / CLI** — the target of the "Claude Prompt" action.
+  v1 integration is **clipboard hand-off** (context-aware prompt built in the
+  renderer), not a direct invocation (no reliable cross-app deep-link exists;
+  see §6/ADR).
 
 ## 3. Architecture style & major components
 
@@ -157,7 +158,7 @@ cache is the only thing the store mutates on its own (write-through to userData)
 - `getGitState(path): GitState` — cached-or-compute (SWR revalidation entry).
 - `refreshGit(path): GitState` — force recompute.
 - `onRegistryChange(cb)` / `onStateChange(path, cb)` — push events from watchers.
-- `copyOrchestratorCommand(project): void` — clipboard hand-off.
+- `copyText(text): void` — clipboard hand-off; prompt text built by the renderer.
 - `getRecent()` / `addRecent(path)` — persisted MRU list.
 
 **File contracts (read-only, tolerant):**

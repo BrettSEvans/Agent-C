@@ -118,7 +118,7 @@ flowchart TD
   - List of nested features
   - Each feature: name (clickable), stage, status, revision count, git state (summary)
 - Action button:
-  - "Open in orchestrator" (launches `/orchestrator` pre-filtered to this project)
+  - "Claude Prompt" (copies a context-aware prompt to the clipboard; paste into Claude Desktop to continue)
 
 ### View 3: Feature detail
 
@@ -223,7 +223,7 @@ flowchart TD
 - **Offline-first:** Must work fully offline; no internet required.
 - **Scale:** Handles 20-100 projects smoothly (sidebar scrollable, search for performance).
 - **Single-user v1:** No multi-user locking or conflict resolution; assumes one person per project at a time.
-- **Orchestrator integration:** Clicking "open in orchestrator" launches `/orchestrator` pre-filtered to that project.
+- **Orchestrator integration:** Clicking "Claude Prompt" copies a context-aware prompt to the clipboard (revision, approval, or next-stage prompt depending on project state); the user pastes it into Claude Desktop.
 - **Platform:** Works on macOS, Linux, Windows (using standard web APIs; no platform-specific code).
 - **Accessibility:** Keyboard navigation, screen reader support (standard web practices).
 

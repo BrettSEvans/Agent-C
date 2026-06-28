@@ -4,7 +4,7 @@ Deferred items from discovery stages.
 
 ## From engineer (05-implementation.md)
 
-- **Real orchestrator launch protocol:** Replace clipboard copy with a deep-link or trigger-file approach so "Open in orchestrator" directly opens Claude Desktop at the right project. Deferred to v2 (no reliable cross-app deep-link contract in v1).
+- **Real orchestrator launch protocol:** Replace clipboard copy with a deep-link or trigger-file approach so "Claude Prompt" directly opens Claude Desktop at the right project. Deferred to v2 (no reliable cross-app deep-link contract in v1).
 - **Sidebar list virtualization:** For 100+ projects, the sidebar list renders all rows. Add a virtual list (e.g. `@tanstack/react-virtual`) if performance degrades at scale.
 - **Production git concurrency cap:** The `p-limit` cap-6 is instantiated in the exported `gitService` singleton. Consider making this configurable via env/settings for power users with fast disks.
 - **Watcher integration tests:** `watcher-service.ts` is exercised manually; add a temp-file integration test to pin the chokidar event → IPC push path.
