@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent-C Dashboard — Typeface Comparison</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #999;
+            margin-bottom: 40px;
+        }
+
+        .typeface-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .typeface-section {
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 30px;
+            background: #1a1a1a;
+        }
+
+        .typeface-section h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .typeface-name {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .feeling {
+            font-size: 13px;
+            color: #999;
+            font-style: italic;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        /* Monospace */
+        .monospace {
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        /* Inter */
+        .inter {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        /* Space Grotesk */
+        .space-grotesk {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Dashboard sample */
+        .dashboard-sample {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .dashboard-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .dashboard-row:last-child {
+            border-bottom: none;
+        }
+
+        .project-name {
+            flex: 1;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #1f5f7f;
+            color: #a0d8f0;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 5px;
+        }
+
+        .status-icon {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Text samples */
+        .text-samples {
+            margin-top: 20px;
+        }
+
+        .sample-text {
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        .sample-heading {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        /* Comparison section */
+        .full-width {
+            width: 100%;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #333;
+        }
+
+        .full-width h3 {
+            font-size: 20px;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .side-by-side-item h4 {
+            font-size: 13px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .side-by-side-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #333;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .typeface-grid {
+                grid-template-columns: 1fr;
+            }
+            .side-by-side {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agent-C Dashboard</h1>
+        <p class="subtitle">Typeface Comparison — Cold Brushed Steel Industrial Aesthetic</p>
+
+        <div class="typeface-grid">
+            <!-- Monospace -->
+            <div class="typeface-section">
+                <h2>Option 1: Monospace</h2>
+                <div class="typeface-name">Monaco / Inconsolata</div>
+                <div class="feeling">Technical, code-like, precise. Every character takes equal width. Reads like a terminal or code editor.</div>
+
+                <div class="dashboard-sample monospace">
+                    <div class="dashboard-row">
+                        <span class="project-name">tiffany</span>
+                        <span class="badge">ux</span>
+                        <span class="status-icon">⚠</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="project-name">securefile</span>
+                        <span class="badge">pm</span>
+                        <span class="status-icon">✓</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="project-name">merch (feature)</span>
+                        <span class="badge">architect</span>
+                        <span class="status-icon">-</span>
+                    </div>
+                </div>
+
+                <div class="text-samples monospace">
+                    <div class="sample-text">
+                        <div class="sample-heading">Button text:</div>
+                        Open Orchestrator
+                    </div>
+                    <div class="sample-text">
+                        <div class="sample-heading">Status message:</div>
+                        ⏳ Computing git status...
+                    </div>
+                    <div class="sample-text">
+                        <div class="sample-heading">Paragraph:</div>
+                        This dashboard shows all your Agent-C projects. Click a project to see its current stage, approval status, and git state.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inter -->
+            <div class="typeface-section">
+                <h2>Option 2: Modern Sans</h2>
+                <div class="typeface-name">Inter</div>
+                <div class="feeling">Clean, minimal, humanist. Highly readable at all sizes. What Figma, Stripe, Linear use. Professional but approachable.</div>
+
+                <div class="dashboard-sample inter">
+                    <div class="dashboard-row">
+                        <span class="project-name">Tiffany</span>
+                        <span class="badge">UX</span>
+                        <span class="status-icon">⚠</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="project-name">SecureFile</span>
+                        <span class="badge">PM</span>
+                        <span class="status-icon">✓</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="project-name">Merch Page (feature)</span>
+                        <span class="badge">Architect</span>
+                        <span class="status-icon">-</span>
+                    </div>
+                </div>
+
+                <div class="text-samples inter">
+                    <div class="sample-text">
+                        <div class="sample-heading">Button text:</div>
+                        Open Orchestrator
+                    </div>
+                    <div class="sample-text">
+                        <div class="sample-heading">Status message:</div>
+                        ⏳ Computing git status...
+                    </div>
+                    <div class="sample-text">
+                        <div class="sample-heading">Paragraph:</div>
+                        This dashboard shows all your Agent-C projects. Click a project to see its current stage, approval status, and git state.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Space Grotesk -->
+            <div class="typeface-section">
+                <h2>Option 3: Geometric Sans</h2>
+                <div class="typeface-name">Space Grotesk</div>
+                <div class="feeling">Structured, geometric, futuristic-but-grounded. Sharp angles, perfect proportions. Reads as engineered and precise.</div>
+
+                <div class="dashboard-sample space-grotesk">
+                    <div class="dashboard-row">
+                        <span class="project-name">Tiffany</span>
+                        <span class="badge">UX</span>
+                        <span class="status-icon">⚠</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="project-name">SecureFile</span>
+                        <span class="badge">PM</span>
+                        <span class="status-icon">✓</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="project-name">Merch Page (feature)</span>
+                        <span class="badge">Architect</span>
+                        <span class="status-icon">-</span>
+                    </div>
+                </div>
+
+                <div class="text-samples space-grotesk">
+                    <div class="sample-text">
+                        <div class="sample-heading">Button text:</div>
+                        Open Orchestrator
+                    </div>
+                    <div class="sample-text">
+                        <div class="sample-heading">Status message:</div>
+                        ⏳ Computing git status...
+                    </div>
+                    <div class="sample-text">
+                        <div class="sample-heading">Paragraph:</div>
+                        This dashboard shows all your Agent-C projects. Click a project to see its current stage, approval status, and git state.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full-width comparison -->
+        <div class="full-width">
+            <h3>Quick Comparison</h3>
+            <div class="side-by-side">
+                <div class="side-by-side-item">
+                    <h4>Monospace</h4>
+                    <div class="side-by-side-content monospace">
+                        <strong>Pros:</strong><br/>
+                        • Most technical/industrial<br/>
+                        • Code editor feel<br/>
+                        • Precise, engineered<br/>
+                        <br/>
+                        <strong>Cons:</strong><br/>
+                        • Less refined at large sizes<br/>
+                        • Can feel dated<br/>
+                        • Lower readability
+                    </div>
+                </div>
+                <div class="side-by-side-item">
+                    <h4>Inter (Modern Sans)</h4>
+                    <div class="side-by-side-content inter">
+                        <strong>Pros:</strong><br/>
+                        • Most readable & professional<br/>
+                        • Works at all sizes<br/>
+                        • Calm, approachable<br/>
+                        <br/>
+                        <strong>Cons:</strong><br/>
+                        • "Safe" choice, less distinctive<br/>
+                        • Maybe less "industrial"<br/>
+                        • Overused in design
+                    </div>
+                </div>
+                <div class="side-by-side-item">
+                    <h4>Space Grotesk</h4>
+                    <div class="side-by-side-content space-grotesk">
+                        <strong>Pros:</strong><br/>
+                        • Engineered + clean balance<br/>
+                        • Distinctive, not overused<br/>
+                        • Geometric precision<br/>
+                        <br/>
+                        <strong>Cons:</strong><br/>
+                        • Slightly less readable<br/>
+                        • Needs good spacing<br/>
+                        • Less common in dev tools
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Open this file in a browser to see the typefaces rendered. Choose the one that best matches the "cold brushed steel, industrial, calm" aesthetic you're envisioning.</p>
+        </div>
+    </div>
+</body>
+</html>
