@@ -62,7 +62,7 @@ Three kinds of skill live in `agents/`:
 | [`engineer`](agents/engineer/SKILL.md) | Role (stage 5) | **Implement** in working, tested code — greenfield, existing-codebase, or feature. Conforms to conventions; verifies; never auto-deploys. | `01`–`04` → code + `05-implementation.md` |
 | [`qa`](agents/qa/SKILL.md) | Role (stage 6) | **Verify** the implementation against the artifacts — acceptance criteria, flows/states/edge cases, build/tests, conformance, a11y, regressions. Reports a verdict; doesn't block. | `01`–`05` + code → `qa-report` |
 | [`critic`](agents/critic/SKILL.md) | Quality | Review **PM/UX/UI** artifacts across 8 criteria, max two passes; reports to the human gate (does not block). | discovery artifact → `critic-reports/` |
-| [`technical-critic`](agents/technical-critic/SKILL.md) | Quality | Review **architect/engineer/QA** artifacts *and code* across 8 engineering criteria (soundness, seam integrity, scalability), max two passes; reports to the human gate (does not block). | build artifact + code → `critic-reports/` |
+| [`technical-critic`](agents/technical-critic/SKILL.md) | Quality | Review **architect/engineer/QA** artifacts *and code* across 8 engineering criteria (soundness, seam integrity, scalability), **single pass**; findings tagged APPLY/DEFER and auto-applied by the engineer — no HITL in the critic loop. HITL reviews the final result at QA. | build artifact + code → `critic-reports/` + `pendingFeedback` in `state.json` |
 | [`orchestrator`](agents/orchestrator/SKILL.md) | Orchestration | **Front door.** Manages the project registry, shows the dashboard across all projects, presents approval gates (approve/revise/pause), dispatches the user to the next role. Manual registry-helper, v1 Desktop. | registry ↔ state.json |
 
 > **`qa` vs. the critics:** the `critic` reviews *upstream discovery artifacts*
@@ -215,8 +215,10 @@ for all six roles. Supports interruption/resumption within a stage.
 **Orchestrator (v1 front door):** the manual `orchestrator` skill runs in Claude
 Desktop and owns the project registry, dashboard, approval-gate loop, and user
 dispatch. It tells the user which skill to invoke next (never auto-chains). Integrates
-both critics as an opt-in `[r]` gate action on every stage (`critic` for PM/UX/UI,
-`technical-critic` for architect/engineer/QA).
+the `critic` as an opt-in `[r]` gate action for PM/UX/UI stages, and
+`technical-critic` for architect/engineer/QA stages — but `technical-critic`
+findings are **auto-applied by the engineer** (no HITL in the critic loop); the
+human gate only reviews the final engineering output at QA.
 
 **Thin agent wrappers** for the 6 stages + critic live in `agent-defs/` (one `.md`
 each). They dispatch to the matching skill via the Skill tool, falling back to

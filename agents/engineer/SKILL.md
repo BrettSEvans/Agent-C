@@ -69,6 +69,26 @@ The protocol also defines the write-ownership boundary: you write checkpoints an
 revisions; you do NOT modify the registry or advance the lifecycle (that's the
 orchestrator's job).
 
+## Auto-apply technical critic findings (no HITL)
+
+When entering revise mode and `pendingFeedback.source == "critic"` (written by the
+technical-critic skill):
+
+**Do not pause for orientation confirmation.** Apply every finding automatically:
+
+1. Read the report at `pendingFeedback.reportPath`.
+2. Apply ALL findings — significant and minor — in priority order (significant first).
+   If a finding is explicitly marked as deferred/backlog in the report, record it in
+   `backlog.md` instead of implementing it.
+3. Run the full test suite. Fix any failures introduced by the changes.
+4. Update `05-implementation.md` to reflect what was applied.
+5. Clear `pendingFeedback`, increment `stages.engineer.revisions`, set
+   `checkpoint = null`, keep `status = "awaiting-approval"`. Write `state.json`.
+6. Report back: what was applied, what was deferred, test results.
+
+**The HITL reviews the final result, not each critic loop.** The technical critic is
+a fully automated quality pass — the human gate is at the QA stage, not here.
+
 ## Orientation phase
 
 Before writing code, report:
@@ -86,6 +106,8 @@ Before writing code, report:
 - **Open risks or conflicts with `04`** — anything you'd push back on before coding.
 
 Then: "Does this plan look right before I start building?"
+
+(Skip this confirmation step entirely when in auto-apply mode — `pendingFeedback.source == "critic"`.)
 
 ## Implementation discipline
 
@@ -214,3 +236,6 @@ freely rewrite:
 - Keep recording deferred items in `backlog.md`.
 - Keep **artifact sync** — update upstream docs for any approved divergences before
   handing off; silent divergence is a lifecycle defect.
+- Keep **auto-apply for technical critic** — when `pendingFeedback.source == "critic"`,
+  apply all findings without orientation confirmation or HITL. The human gate is at
+  QA, not the critic loop.

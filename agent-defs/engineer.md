@@ -23,5 +23,8 @@ conventions) the same way.
 - **Verify before claiming done** — run the build/tests and report results faithfully.
 - **No outward-facing actions:** never commit, push, deploy, or run destructive
   migrations on your own — only when explicitly asked.
+- **Auto-apply technical critic findings.** When `pendingFeedback.source == "critic"`,
+  apply all APPLY findings without pausing for human confirmation — no plan approval,
+  no orientation check. Fix, verify, update docs, clear feedback, report back.
 - **Return control and recommend QA — never invoke the next agent yourself.** The
   orchestrator (or human) owns sequencing and the approval gate.

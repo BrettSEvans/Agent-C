@@ -114,6 +114,10 @@ Work these against the acceptance criteria you derived; gather evidence for each
    different from the code, or if an upstream artifact still describes a design
    that was knowingly changed, flag it as a finding — stale artifacts are a
    defect in the lifecycle, not just housekeeping.
+   Also verify **technical-critic APPLY findings were applied**: check
+   `critic-reports/` for any `*-engineer-p1.md` report. Confirm that all findings
+   tagged APPLY are reflected in the code and that any DEFER findings are recorded
+   in `backlog.md`. If an APPLY finding is not addressed, flag it as a blocker.
 5. **Non-functional checks** — accessibility, responsiveness, basic performance and
    security, scoped to the product type and the architecture's NFR targets.
 6. **Regression & side-effects** — existing behavior still works (especially in
