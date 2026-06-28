@@ -7,9 +7,10 @@ the real method (phases, themes, templates, handoff contract) lives in
 point an orchestrator can `Task`-dispatch.
 
 There is one wrapper per **dispatchable** role — the six lifecycle stages plus the
-critic:
+two critics:
 
-`product-manager` · `ux` · `ui` · `architect` · `engineer` · `qa` · `critic`
+`product-manager` · `ux` · `ui` · `architect` · `engineer` · `qa` · `critic` ·
+`technical-critic`
 
 The shared methods (`elicitation`, `best-practices`, `feature-mode`) are **not**
 wrapped — they're invoked *by* the roles, not dispatched on their own.

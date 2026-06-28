@@ -40,6 +40,7 @@ then proceed, revise, pause, or switch projects.
 | | `engineer` | **Implementation** in code → `05-implementation.md` |
 | | `qa` | **Verify** the build against the artifacts → `qa-report` |
 | **Quality** | `critic` | Review PM/UX/UI artifacts before they're approved |
+| | `technical-critic` | Review architect/engineer/QA artifacts + code before they're approved |
 | **Orchestration** | `orchestrator` | **Front door:** project registry, dashboard, approval gates, user dispatch |
 
 ### Three ways to use it

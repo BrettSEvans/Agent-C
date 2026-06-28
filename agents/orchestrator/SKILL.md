@@ -239,7 +239,7 @@ Options:
 [c] Request changes (describe feedback)
 [e] Edit myself (opens artifact for manual edit)
 [p] Pause (leave parked; resume later)
-[r] Run critic first (PM/UX/UI gates only)
+[r] Run critic first (all stages — critic for PM/UX/UI, technical-critic for architect/engineer/QA)
 ```
 
 ### Gate actions
@@ -250,23 +250,30 @@ Options:
 | `[c]` Request changes | Ask: "**Feedback?**" (e.g., "Flows section too thin; add resume-project flow.") Write `pendingFeedback: { stage: <thisStage>, source: "user", text: <feedback>, reportPath: null }` to `state.json`. Tell user: "Invoke `/<stageName>` to revise." Return to dashboard. |
 | `[e]` Edit myself | Tell user the artifact path; they edit in their editor. After they confirm changes, return to the gate (re-present it to approve or request changes). |
 | `[p]` Pause | Leave the project parked at this stage. Return to dashboard. |
-| `[r]` Run critic | **PM/UX/UI gates only.** Invoke `/critic` on the artifact. After critic finishes, write its report path and `criticPasses += 1`. If critic found issues, offer `[c]` with the critic's report as the feedback source. |
+| `[r]` Run critic | **All stages.** Invoke the stage-appropriate critic on the artifact: `/critic` for PM/UX/UI, `/technical-critic` for architect/engineer/QA. After it finishes, write its report path and `criticPasses += 1`. If it found issues, offer `[c]` with the report as the feedback source. |
 
 ### Critic integration (`[r]` option)
 
-The critic is an optional gate action on **PM, UX, UI stages only** (not architect,
-engineer, QA).
+The critic is an optional gate action on **every stage**. Which critic runs depends
+on the stage:
+
+- **PM, UX, UI** → `/critic` (reviews the discovery artifacts).
+- **architect, engineer, QA** → `/technical-critic` (reviews the build artifacts
+  *and code* — architecture soundness, implementation fidelity, seam integrity).
+
+Pick the right one by `currentStage`; the flow is identical either way:
 
 1. When user picks `[r]`:
    - Check if `stages.<thisStage>.criticPasses < 2` (max two passes).
    - If >= 2, don't offer `[r]` again.
-2. Invoke `/critic` on the artifact.
-3. Critic writes its report to `<project>/docs/product/critic-reports/<date>-<stage>.md`.
+2. Invoke the stage-appropriate critic (`/critic` or `/technical-critic`) on the
+   artifact.
+3. It writes its report to `<project>/docs/product/critic-reports/<date>-<stage>-p<N>.md`.
 4. Increment `stages.<thisStage>.criticPasses += 1`.
-5. If critic reports issues:
+5. If it reports issues:
    - Write `pendingFeedback: { stage: <thisStage>, source: "critic", text: <summary>, reportPath: <path> }`.
    - Tell user: "Critic found issues. [c]Request changes to revise with the critic's feedback, or [a]Approve anyway."
-6. If critic approves (no issues):
+6. If it approves (no issues):
    - Tell user: "Critic approves. Ready to advance?"
 
 ---
@@ -353,10 +360,11 @@ This skill can be edited as your orchestration practice evolves. You may rewrite
 - Keep loading/creating `~/.agent-c/registry.json` as the global cache.
 - Keep the command surface: `new / resume / switch / adopt / repoint / remove`.
 - Keep the approval-gate loop with the four (or five) options.
+- Keep critic integration as an opt-in `[r]` gate action on every stage, routing to
+  `/critic` (PM/UX/UI) or `/technical-critic` (architect/engineer/QA).
 - Keep the write-ownership boundary: orchestrator updates registry/state sequencing,
   roles write their artifacts and checkpoints.
 - Keep the Handoff contract: return control; never auto-run stages.
-- Keep critic integration as an opt-in gate action on PM/UX/UI.
 
 ---
 

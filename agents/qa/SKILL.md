@@ -13,13 +13,16 @@ criteria, and test against them. You do NOT rewrite the implementation — you f
 and report what's wrong, and recommend fixes. Stay at **verification altitude**:
 evidence and findings, not redesign.
 
-## QA vs. critic
+## QA vs. the critics
 
 These are different roles, easy to confuse:
-- **`critic`** reviews the *upstream artifacts* (PM/UX/UI docs) for quality and
-  coherence *before* they're approved.
-- **`qa` (this skill)** verifies the *implementation* (the code the engineer built)
-  *against* those artifacts, *after* stage 5.
+- **`critic`** reviews the *upstream discovery artifacts* (PM/UX/UI docs) for quality
+  and coherence *before* they're approved.
+- **`technical-critic`** reviews the *build artifacts + code* (architect/engineer/QA)
+  for engineering soundness *before* they're approved — including this QA artifact.
+- **`qa` (this skill)** independently verifies the *implementation* (the code the
+  engineer built) *against* the artifacts, *after* stage 5. The technical-critic can
+  then review QA's own report as an opt-in gate.
 
 ## Method
 

@@ -61,12 +61,15 @@ Three kinds of skill live in `agents/`:
 | [`architect`](agents/architect/SKILL.md) | Role (stage 4) | Define the **technical architecture** — structure, runtime, data, decisions. Optional diagrams. | `01`/`02`/`03` → `04-architecture.md` |
 | [`engineer`](agents/engineer/SKILL.md) | Role (stage 5) | **Implement** in working, tested code — greenfield, existing-codebase, or feature. Conforms to conventions; verifies; never auto-deploys. | `01`–`04` → code + `05-implementation.md` |
 | [`qa`](agents/qa/SKILL.md) | Role (stage 6) | **Verify** the implementation against the artifacts — acceptance criteria, flows/states/edge cases, build/tests, conformance, a11y, regressions. Reports a verdict; doesn't block. | `01`–`05` + code → `qa-report` |
-| [`critic`](agents/critic/SKILL.md) | Quality | Review PM/UX/UI artifacts across 8 criteria, max two passes; reports to the human gate (does not block). | any artifact → `critic-reports/` |
+| [`critic`](agents/critic/SKILL.md) | Quality | Review **PM/UX/UI** artifacts across 8 criteria, max two passes; reports to the human gate (does not block). | discovery artifact → `critic-reports/` |
+| [`technical-critic`](agents/technical-critic/SKILL.md) | Quality | Review **architect/engineer/QA** artifacts *and code* across 8 engineering criteria (soundness, seam integrity, scalability), max two passes; reports to the human gate (does not block). | build artifact + code → `critic-reports/` |
 | [`orchestrator`](agents/orchestrator/SKILL.md) | Orchestration | **Front door.** Manages the project registry, shows the dashboard across all projects, presents approval gates (approve/revise/pause), dispatches the user to the next role. Manual registry-helper, v1 Desktop. | registry ↔ state.json |
 
-> **`qa` vs. `critic`:** the critic reviews *upstream artifacts* (PM/UX/UI docs)
-> before they're approved; QA verifies the *implementation* against those artifacts
-> after the engineer builds.
+> **`qa` vs. the critics:** the `critic` reviews *upstream discovery artifacts*
+> (PM/UX/UI docs) and `technical-critic` reviews *build artifacts + code*
+> (architect/engineer/QA), both before approval; QA independently verifies the
+> *implementation* against the artifacts after the engineer builds. The critics are
+> opt-in quality gates; QA is a lifecycle stage.
 
 ---
 
@@ -85,6 +88,10 @@ flowchart LR
     CRITIC{{critic}} -.reviews.-> PM
     CRITIC -.reviews.-> UX
     CRITIC -.reviews.-> UI
+
+    TCRITIC{{technical-critic}} -.reviews.-> ARCH
+    TCRITIC -.reviews.-> ENG
+    TCRITIC -.reviews.-> QA
 
     ORCH[/orchestrator — sequencing, registry, gates/]
     ORCH -.owns approval gate between every stage.-> PM
@@ -188,7 +195,7 @@ ln -s "$(pwd)/agents/<name>" ~/.claude/skills/<name>
 The canonical file is `agents/<name>/SKILL.md`; the symlink makes it live in the
 user's skill directory. Editing the repo file edits the live skill. Current links:
 `elicitation`, `best-practices`, `feature-mode`, `stage-protocol`, `product-manager`,
-`ux`, `ui`, `architect`, `engineer`, `qa`, `critic`, `orchestrator`.
+`ux`, `ui`, `architect`, `engineer`, `qa`, `critic`, `technical-critic`, `orchestrator`.
 
 ---
 
@@ -196,8 +203,8 @@ user's skill directory. Editing the repo file edits the live skill. Current link
 
 **Built:** `elicitation`, `best-practices`, `feature-mode`, `stage-protocol`,
 `product-manager`, `ux`, `ui`, `architect`, `engineer`, `qa`, `critic`,
-`orchestrator` — all symlinked with operating-modes + analysis + handoff contract +
-customizing structure. **All six lifecycle roles (PM → UX → UI → architect → engineer
+`technical-critic`, `orchestrator` — all symlinked with operating-modes + analysis +
+handoff contract + customizing structure. **All six lifecycle roles (PM → UX → UI → architect → engineer
 → QA) and the orchestrator now exist**, completing the thin slice through the whole
 lifecycle plus v1 sequencing/approval gates.
 
@@ -208,7 +215,8 @@ for all six roles. Supports interruption/resumption within a stage.
 **Orchestrator (v1 front door):** the manual `orchestrator` skill runs in Claude
 Desktop and owns the project registry, dashboard, approval-gate loop, and user
 dispatch. It tells the user which skill to invoke next (never auto-chains). Integrates
-critic as an opt-in gate action on PM/UX/UI.
+both critics as an opt-in `[r]` gate action on every stage (`critic` for PM/UX/UI,
+`technical-critic` for architect/engineer/QA).
 
 **Thin agent wrappers** for the 6 stages + critic live in `agent-defs/` (one `.md`
 each). They dispatch to the matching skill via the Skill tool, falling back to
@@ -263,8 +271,9 @@ Agent-C/
 │   ├── engineer/              # stage 5 — implementation → code + 05-implementation.md
 │   ├── qa/                    # stage 6 — verification → qa-report
 │   ├── critic/                # quality review of PM/UX/UI artifacts
+│   ├── technical-critic/      # quality review of architect/engineer/QA artifacts + code
 │   └── orchestrator/          # front door: registry, dashboard, approval gates
-├── agent-defs/                # thin subagent wrappers (Code-only): 6 stages + critic
+├── agent-defs/                # thin subagent wrappers (Code-only): 6 stages + critics
 └── docs/
     ├── DUAL-MODE-SKILL-PATTERN.md
     └── product/               # Agent-C's own lifecycle artifacts (whole-product)
