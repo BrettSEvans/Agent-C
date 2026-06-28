@@ -4,21 +4,11 @@ import { ProjectDetail } from './components/ProjectDetail'
 import { FeatureDetail } from './components/FeatureDetail'
 import { Footer } from './components/Footer'
 import { useDashboardStore } from './store'
-import type { RegistryEntry } from '../../shared/types'
+import type { DashboardAPI, RegistryEntry } from '../../shared/types'
 
 declare global {
   interface Window {
-    api: {
-      listProjects: () => Promise<import('../../shared/types').RegistryEntry[]>
-      readState: (path: string) => Promise<import('../../shared/types').ProjectState | null>
-      getGitState: (path: string) => Promise<import('../../shared/types').GitState>
-      refreshGit: (path: string) => Promise<import('../../shared/types').GitState>
-      copyText: (text: string) => Promise<void>
-      getRecent: () => Promise<string[]>
-      addRecent: (path: string) => Promise<void>
-      onRegistryChange: (cb: () => void) => () => void
-      onStateChange: (path: string, cb: () => void) => () => void
-    }
+    api: DashboardAPI
   }
 }
 
@@ -32,6 +22,7 @@ async function loadGitState(
   } catch {
     updateGitState(entry.path, {
       uncommittedCount: 0,
+      uncommittedFiles: [],
       unpushedCount: 0,
       computedAt: new Date().toISOString(),
       status: 'failed'
@@ -124,6 +115,7 @@ export default function App(): JSX.Element {
   async function handleRefreshGit(path: string): Promise<void> {
     updateGitState(path, {
       uncommittedCount: 0,
+      uncommittedFiles: [],
       unpushedCount: 0,
       computedAt: new Date().toISOString(),
       status: 'computing'

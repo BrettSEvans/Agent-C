@@ -92,3 +92,15 @@ export interface ParseResult<T> {
   data: T | null
   warning?: string
 }
+
+export interface DashboardAPI {
+  listProjects: () => Promise<RegistryEntry[]>
+  readState: (projectPath: string) => Promise<ProjectState | null>
+  getGitState: (projectPath: string) => Promise<GitState>
+  refreshGit: (projectPath: string) => Promise<GitState>
+  copyText: (text: string) => Promise<void>
+  getRecent: () => Promise<string[]>
+  addRecent: (projectPath: string) => Promise<void>
+  onRegistryChange: (cb: () => void) => () => void
+  onStateChange: (projectPath: string, cb: () => void) => () => void
+}

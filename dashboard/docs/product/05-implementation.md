@@ -14,14 +14,14 @@ and uncommitted file list.
 
 | Layer | Choice | Notes |
 |---|---|---|
-| App shell | Electron 33 | contextIsolation ON, nodeIntegration OFF |
+| App shell | Electron 33 | contextIsolation ON, nodeIntegration OFF, sandbox ON (default) |
 | Build | electron-vite 2 (Vite 5) | 3-target: main / preload / renderer |
 | Frontend | React 18 + TypeScript | |
 | State | Zustand 5 | SWR pattern for git cache |
 | File watching | chokidar 3 | registry.json + all state.json files |
 | Git concurrency | inline `createLimiter(6)` | replaced p-limit (ESM-only, crashes Electron CJS main) |
 | Font | @fontsource/space-grotesk | bundled 400/500/600/700 — no CDN, offline-first |
-| Tests | Vitest 2 + @testing-library/react 16 | 68 tests across 7 suites |
+| Tests | Vitest 2 + @testing-library/react 16 | 91 tests across 8 suites |
 
 ## How to run
 
@@ -100,8 +100,45 @@ on every `.btn` and `.sidebar-item__stage` element. CSS uses `var(--rx, 50%)`
 and `var(--ry, 30%)` in radial gradients so each element has a unique focal point
 that varies on every reload.
 
-**Security:** `contextIsolation: true`, `nodeIntegration: false`; contextBridge
+**Security:** `contextIsolation: true`, `nodeIntegration: false`, sandbox enabled
+(Electron 20+ default restored — `sandbox: false` was removed); contextBridge
 exposes only the allow-listed `window.api`; git uses `execFile` with arg arrays.
+
+**DashboardAPI type:** moved from `preload/index.ts` to `shared/types.ts` — single
+source of truth used by both the preload and the renderer's `window.api` ambient
+declaration.
+
+**WatcherService lifecycle:** `start()` now calls `this.watcher?.close()` before
+creating a new chokidar instance, preventing fd leaks on repeated calls. The
+`list-projects` handler initialises the watcher once (`watcherInitialized` flag)
+rather than on every call. The `registry-changed` handler diffs old vs new project
+paths and calls `removeStateWatch` for deleted entries. `getWatchedProjectPaths()`
+exposes the current tracked set for the diff.
+
+**lastKnown stale fallback:** not implemented in v1 — deferred to backlog. The
+git-state error path returns a `failed` GitState with zero counts; the last-known
+fallback would require threading the in-flight cache through to the failure return.
+
+## Critic revision 1 — applied 2026-06-28
+
+All 6 findings from the technical critic pass 1 addressed:
+
+| Finding | Severity | Fix |
+|---|---|---|
+| WatcherService.start() resource leak | Significant | Added `this.watcher?.close()` as first line of `start()`; guarded `startWatching` with `watcherInitialized` flag so it only runs once |
+| `sandbox: false` in main/index.ts | Significant | Removed the line; renderer sandbox restored to Electron default |
+| Missing `uncommittedFiles: []` in two GitState literals | Minor | Added `uncommittedFiles: []` to failed and computing states in App.tsx |
+| `window.api` type duplicated locally in App.tsx | Minor | Moved `DashboardAPI` to `shared/types.ts`; preload re-exports it; App.tsx imports it |
+| `removeStateWatch` never called for deleted projects | Minor | `registry-changed` handler now diffs old vs new paths and calls `removeStateWatch` for removed entries; `getWatchedProjectPaths()` added to `WatcherService` |
+| `lastKnown` fallback unimplemented | Minor | Deferred to backlog as a v1 gap — not a correctness bug |
+
+Test suite grew from 79 to 91 tests (+12 new WatcherService unit tests).
+
+## Post-critic-revision-1 fixes (2026-06-28)
+
+| Fix | Detail |
+|---|---|
+| `win.webContents.send()` crash on quit | Both `registry-changed` and `state-changed` watcher handlers in `ipc/handlers.ts` now guard with `!win.isDestroyed()` before calling `win.webContents.send()`. Prevents `TypeError: Object has been destroyed` when chokidar fires after the BrowserWindow has been closed. |
 
 ## Post-QA fixes applied (2026-06-28)
 
@@ -147,20 +184,22 @@ The authoritative description of what was actually built is in
 ## Test suite (current)
 
 ```
- ✓ src/main/services/__tests__/registry-reader.test.ts   (6 tests)
- ✓ src/main/services/__tests__/state-reader.test.ts      (6 tests)
- ✓ src/main/services/__tests__/git-service.test.ts      (15 tests)
- ✓ src/main/services/__tests__/persistence.test.ts       (7 tests)
- ✓ src/renderer/src/store/__tests__/store.test.ts        (11 tests)
- ✓ src/renderer/src/components/__tests__/Sidebar.test.tsx      (7 tests)
+ ✓ src/main/services/__tests__/watcher-service.test.ts   (12 tests)
+ ✓ src/main/services/__tests__/registry-reader.test.ts    (6 tests)
+ ✓ src/main/services/__tests__/state-reader.test.ts       (6 tests)
+ ✓ src/main/services/__tests__/git-service.test.ts       (15 tests)
+ ✓ src/main/services/__tests__/persistence.test.ts        (7 tests)
+ ✓ src/renderer/src/store/__tests__/store.test.ts         (11 tests)
+ ✓ src/renderer/src/components/__tests__/Sidebar.test.tsx       (7 tests)
  ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (27 tests)
 
- Test Files  7 passed (7)
-      Tests  79 passed (79)
+ Test Files  8 passed (8)
+      Tests  91 passed (91)
 ```
 
 | Suite | Behaviors covered |
 |---|---|
+| watcher-service | `start()` watches registry + state paths; double-start closes old watcher; registry-changed event; state-changed event; state-changed not emitted for unknown path; `addStateWatch` adds to underlying watcher and enables event; `removeStateWatch` unwatches and stops events; `getWatchedProjectPaths` reflects live state; `stop` closes watcher |
 | registry-reader | valid parse; unknown-field tolerance; schema mismatch warning; missing file; corrupt JSON; optional field defaults |
 | state-reader | valid parse; missing stage defaults; missing file; corrupt JSON; schema version; pendingFeedback preservation |
 | git-service | `parseStatusFiles` (empty, blank lines, M/M /??/A /D /, multi-file); `parseRevListOutput`; happy path with file list; clean tree; no-upstream; git-not-found → failed |
@@ -189,6 +228,6 @@ Build: clean. TypeScript: clean.
 
 ## Next handoff
 
-QA → re-verify against artifacts (this is the second engineer pass; S1–S3 are
-fixed). Visual/a11y pass should cover the polished-steel button and badge
-rendering, sidebar border strip, and toast behaviour.
+QA → re-verify against artifacts (this is the third engineer pass; S1–S3 from QA
+and all 6 critic findings are now fixed). Visual/a11y pass should cover the
+polished-steel button and badge rendering, sidebar border strip, and toast behaviour.

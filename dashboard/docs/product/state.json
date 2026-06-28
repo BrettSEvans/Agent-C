@@ -12,14 +12,9 @@
     "ux":       { "status": "approved-complete", "revisions": 0, "criticPasses": 0, "checkpoint": null },
     "ui":       { "status": "approved-complete", "revisions": 0, "criticPasses": 0, "checkpoint": null },
     "architect":{ "status": "approved-complete", "revisions": 1, "criticPasses": 1, "checkpoint": null },
-    "engineer": { "status": "awaiting-approval", "revisions": 0, "criticPasses": 1, "checkpoint": null },
+    "engineer": { "status": "awaiting-approval", "revisions": 1, "criticPasses": 1, "checkpoint": null },
     "qa":       { "status": "not-started",       "revisions": 0, "criticPasses": 0, "checkpoint": null }
   },
-  "pendingFeedback": {
-    "stage": "engineer",
-    "source": "critic",
-    "text": "2 significant issues: (1) WatcherService.start() resource leak — overwrites this.watcher without closing the old one; list-projects calls startWatching on every invocation, accumulating chokidar watchers. Fix: call this.watcher?.close() at start of start(). (2) sandbox: false set unnecessarily in main/index.ts — preload only uses contextBridge + ipcRenderer, available in sandboxed mode; remove sandbox: false to restore Electron 20+ default sandbox. 4 minor issues: missing uncommittedFiles: [] in two failed/computing GitState literals in App.tsx; lastKnown fallback unimplemented; removeStateWatch never called for deleted projects; window.api type duplicated locally in App.tsx instead of importing DashboardAPI from preload.",
-    "reportPath": "docs/product/critic-reports/2026-06-28-engineer-p1.md"
-  },
-  "updatedAt": "2026-06-28T07:00:00Z"
+  "pendingFeedback": null,
+  "updatedAt": "2026-06-28T16:10:00Z"
 }

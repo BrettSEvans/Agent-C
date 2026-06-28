@@ -1,17 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { GitState, ProjectState, RegistryEntry } from '../shared/types'
+import type { DashboardAPI } from '../shared/types'
 
-export interface DashboardAPI {
-  listProjects: () => Promise<RegistryEntry[]>
-  readState: (projectPath: string) => Promise<ProjectState | null>
-  getGitState: (projectPath: string) => Promise<GitState>
-  refreshGit: (projectPath: string) => Promise<GitState>
-  copyText: (text: string) => Promise<void>
-  getRecent: () => Promise<string[]>
-  addRecent: (projectPath: string) => Promise<void>
-  onRegistryChange: (cb: () => void) => () => void
-  onStateChange: (projectPath: string, cb: () => void) => () => void
-}
+export type { DashboardAPI }
 
 const api: DashboardAPI = {
   listProjects: () => ipcRenderer.invoke('list-projects'),

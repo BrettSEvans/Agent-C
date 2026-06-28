@@ -10,7 +10,12 @@ export class WatcherService extends EventEmitter {
   private watcher: FSWatcher | null = null
   private statePaths: Map<string, string> = new Map() // projectPath → state.json path
 
+  getWatchedProjectPaths(): Set<string> {
+    return new Set(this.statePaths.keys())
+  }
+
   start(registryPath: string, statePaths: Map<string, string>): void {
+    this.watcher?.close()
     this.statePaths = statePaths
     const pathsToWatch = [registryPath, ...Array.from(statePaths.values())]
 

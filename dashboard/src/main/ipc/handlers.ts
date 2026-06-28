@@ -16,6 +16,7 @@ const REGISTRY_PATH =
 const gitCache = new Map<string, GitState>()
 const watcher = new WatcherService()
 let persistence: ReturnType<typeof createPersistence>
+let watcherInitialized = false
 
 function getStatePath(projectPath: string): string {
   return join(projectPath, 'docs', 'product', 'state.json')
@@ -39,7 +40,10 @@ export function registerIpcHandlers(win: BrowserWindow, userDataPath: string): v
 
   ipcMain.handle('list-projects', async (): Promise<RegistryEntry[]> => {
     const entries = await loadAllProjects()
-    await startWatching(entries)
+    if (!watcherInitialized) {
+      await startWatching(entries)
+      watcherInitialized = true
+    }
     return entries
   })
 
@@ -88,15 +92,19 @@ export function registerIpcHandlers(win: BrowserWindow, userDataPath: string): v
   )
 
   watcher.on('registry-changed', async () => {
-    win.webContents.send('registry-changed')
+    if (!win.isDestroyed()) win.webContents.send('registry-changed')
     const entries = await loadAllProjects()
+    const newPaths = new Set(entries.map((e) => e.path))
+    for (const oldPath of watcher.getWatchedProjectPaths()) {
+      if (!newPaths.has(oldPath)) watcher.removeStateWatch(oldPath)
+    }
     for (const entry of entries) {
       watcher.addStateWatch(entry.path, getStatePath(entry.path))
     }
   })
 
   watcher.on('state-changed', (projectPath: string) => {
-    win.webContents.send('state-changed', projectPath)
+    if (!win.isDestroyed()) win.webContents.send('state-changed', projectPath)
   })
 }
 
