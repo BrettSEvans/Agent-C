@@ -65,6 +65,19 @@ architecture** — name the integration points, reuse existing patterns/services
 justify any new dependency against the profile. Load the `feature-mode` skill now if
 you haven't.
 
+## Stage protocol
+
+Load the shared **stage-protocol** skill now if you haven't this session. It handles
+entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json management.
+
+This skill detects whether you're entering the architect stage fresh, resuming from a
+checkpoint (work interrupted mid-elicitation), or revising (applying feedback to a
+completed architecture). It manages checkpoints after each theme and state persistence.
+
+The protocol also defines the write-ownership boundary: you write checkpoints and
+revisions; you do NOT modify the registry or advance the lifecycle (that's the
+orchestrator's job).
+
 ### Elicitation fallback (Mode B)
 
 If artifacts are missing, ask the user to provide:

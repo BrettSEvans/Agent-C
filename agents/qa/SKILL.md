@@ -64,6 +64,20 @@ Determine the mode, then read the matching inputs:
 **Determine mode:** feature artifacts present → Mode C; whole-product `04`/`05`
 present → Mode A; otherwise an existing repo → Mode B. When unsure, ask.
 
+## Stage protocol
+
+Load the shared **stage-protocol** skill now if you haven't this session. It handles
+entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json management.
+
+This skill detects whether you're entering the QA stage fresh, resuming from a
+checkpoint (work interrupted mid-verification), or revising (applying feedback to
+test findings). It manages checkpoints at meaningful test-milestone boundaries and
+state persistence.
+
+The protocol also defines the write-ownership boundary: you write checkpoints and
+revisions; you do NOT modify the registry or advance the lifecycle (that's the
+orchestrator's job).
+
 ## Product type (adapt the checks)
 
 Verification looks different by medium — adapt:

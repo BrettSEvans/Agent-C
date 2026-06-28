@@ -38,6 +38,19 @@ skill now if you haven't this session.
   asks for the rough idea or problem space in one sentence.
 - This is the FIRST role in the chain — there is no prior doc to read.
 
+## Stage protocol
+
+Load the shared **stage-protocol** skill now if you haven't this session. It handles
+entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json management.
+
+This skill detects whether you're entering the PM stage fresh (first time), resuming
+from a checkpoint (work interrupted mid-elicitation), or revising (applying feedback
+to a completed brief). It manages checkpoints after each theme and state persistence.
+
+The protocol also defines the write-ownership boundary: you write checkpoints and
+revisions; you do NOT modify the registry or advance the lifecycle (that's the
+orchestrator's job).
+
 ## The 8 themes to cover
 
 Work these in order, one question at a time. Do not advance to the next theme

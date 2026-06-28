@@ -54,6 +54,20 @@ Determine the mode from context, then read the matching inputs:
 **Determine mode:** feature artifacts present → Mode C; whole-product `04` present →
 Mode A; otherwise an existing repo → Mode B. When unsure, ask.
 
+## Stage protocol
+
+Load the shared **stage-protocol** skill now if you haven't this session. It handles
+entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json management.
+
+This skill detects whether you're entering the engineer stage fresh, resuming from a
+checkpoint (work interrupted mid-implementation), or revising (applying feedback to
+partial code). It manages checkpoints at meaningful code-section boundaries and state
+persistence.
+
+The protocol also defines the write-ownership boundary: you write checkpoints and
+revisions; you do NOT modify the registry or advance the lifecycle (that's the
+orchestrator's job).
+
 ## Orientation phase
 
 Before writing code, report:
