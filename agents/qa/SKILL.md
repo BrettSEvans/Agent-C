@@ -71,8 +71,8 @@ entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json manag
 
 This skill detects whether you're entering the QA stage fresh, resuming from a
 checkpoint (work interrupted mid-verification), or revising (applying feedback to
-test findings). It manages checkpoints at meaningful test-milestone boundaries and
-state persistence.
+test findings). It manages checkpoints at meaningful verification sections and state
+persistence.
 
 The protocol also defines the write-ownership boundary: you write checkpoints and
 revisions; you do NOT modify the registry or advance the lifecycle (that's the

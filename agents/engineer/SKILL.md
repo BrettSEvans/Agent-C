@@ -61,7 +61,7 @@ entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json manag
 
 This skill detects whether you're entering the engineer stage fresh, resuming from a
 checkpoint (work interrupted mid-implementation), or revising (applying feedback to
-partial code). It manages checkpoints at meaningful code-section boundaries and state
+partial code). It manages checkpoints at meaningful implementation sections and state
 persistence.
 
 The protocol also defines the write-ownership boundary: you write checkpoints and

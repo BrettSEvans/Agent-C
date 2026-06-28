@@ -66,7 +66,7 @@ entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json manag
 
 This skill detects whether you're entering the UI stage fresh, resuming from a
 checkpoint (work interrupted mid-elicitation), or revising (applying feedback to a
-completed direction). It manages checkpoints after each theme and state persistence.
+completed direction). It manages checkpoints after each section and state persistence.
 
 The protocol also defines the write-ownership boundary: you write checkpoints and
 revisions; you do NOT modify the registry or advance the lifecycle (that's the
