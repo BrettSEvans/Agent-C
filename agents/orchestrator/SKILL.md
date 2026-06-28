@@ -28,7 +28,7 @@ sequencing, and approval gates.
    just redisplay the `dashboard`.
 5. **Present the approval gate** — when a stage artifact is awaiting your approval,
    guide the user through the four (or five) options: approve, request changes, edit
-   myself, pause, or (on PM/UX/UI) run critic first.
+   myself, pause, or run the stage's critic first.
 6. **Update the registry and state** — after gate actions, refresh the cache.
 
 ---
