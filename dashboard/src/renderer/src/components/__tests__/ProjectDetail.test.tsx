@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { act } from 'react'
 import { ProjectDetail } from '../ProjectDetail'
@@ -97,6 +97,31 @@ describe('ProjectDetail', () => {
     render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
     fireEvent.click(screen.getByRole('button', { name: /open in orchestrator/i }))
     expect(mockApi.copyOrchestratorCommand).toHaveBeenCalledWith('Tiffany')
+  })
+
+  describe('copied toast', () => {
+    beforeEach(() => { vi.useFakeTimers() })
+    afterEach(() => { vi.useRealTimers() })
+
+    it('shows a toast after clicking the button', () => {
+      render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+      fireEvent.click(screen.getByRole('button', { name: /open in orchestrator/i }))
+      expect(screen.getByRole('status')).toBeInTheDocument()
+      expect(screen.getByRole('status')).toHaveTextContent(/paste into claude desktop/i)
+    })
+
+    it('toast disappears after 5 seconds', () => {
+      render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+      fireEvent.click(screen.getByRole('button', { name: /open in orchestrator/i }))
+      expect(screen.getByRole('status')).toBeInTheDocument()
+      act(() => { vi.advanceTimersByTime(5000) })
+      expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    })
+
+    it('toast is not visible before the button is clicked', () => {
+      render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+      expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    })
   })
 
   it('shows cached git state age when status is cached', () => {

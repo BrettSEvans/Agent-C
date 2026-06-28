@@ -14,7 +14,6 @@
   "dependencies": {
     "@fontsource/space-grotesk": "^5.2.10",
     "chokidar": "^3.6.0",
-    "p-limit": "^6.2.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

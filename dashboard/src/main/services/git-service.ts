@@ -1,7 +1,23 @@
 import { execFile as nodeExecFile } from 'child_process'
 import { promisify } from 'util'
-import pLimit from 'p-limit'
 import type { GitState, UncommittedFile } from '../../shared/types'
+
+function createLimiter(concurrency: number) {
+  let running = 0
+  const queue: Array<() => void> = []
+  function next() {
+    if (queue.length > 0 && running < concurrency) {
+      running++
+      queue.shift()!()
+    }
+  }
+  return function limit<T>(fn: () => Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      queue.push(() => fn().then(resolve, reject).finally(() => { running--; next() }))
+      next()
+    })
+  }
+}
 
 export interface ExecFileResult {
   stdout: string
@@ -83,7 +99,7 @@ export function createGitService(execFileFn: ExecFileFn) {
 
 // Production instance: real execFile throttled to cap-6 concurrent git processes
 const execFileAsync = promisify(nodeExecFile) as ExecFileFn
-const limit = pLimit(6)
+const limit = createLimiter(6)
 
 export const gitService = createGitService(
   (file, args, options) =>

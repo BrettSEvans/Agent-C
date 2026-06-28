@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import type { RegistryEntry, ProjectState, GitState } from '../../../shared/types'
 
 function formatAge(isoString: string): string {
@@ -80,9 +81,16 @@ export function ProjectDetail({
   const stage = entry.currentStage.toUpperCase()
   const isAwaitingApproval = entry.status === 'awaiting-approval'
   const revisions = projectState?.stages[entry.currentStage]?.revisions ?? entry.revisionCount
+  const [showToast, setShowToast] = useState(false)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current) }, [])
 
   function handleOpenOrchestrator(): void {
     window.api?.copyOrchestratorCommand(entry.name)
+    setShowToast(true)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setShowToast(false), 5000)
   }
 
   function handleRefresh(): void {
@@ -129,6 +137,11 @@ export function ProjectDetail({
         >
           Open in orchestrator
         </button>
+        {showToast && (
+          <div role="status" className="toast">
+            Copied — paste into Claude Desktop to open this project
+          </div>
+        )}
       </footer>
     </article>
   )
