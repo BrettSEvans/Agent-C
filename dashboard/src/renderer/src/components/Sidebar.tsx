@@ -1,4 +1,5 @@
 import { useDashboardStore } from '../store'
+import { useMetalStyle } from '../lib/metal'
 import type { RegistryEntry } from '../../../shared/types'
 
 function stageBadge(stage: string): string {
@@ -14,6 +15,8 @@ function ProjectItem({
   selected: boolean
   onSelect: (path: string) => void
 }): JSX.Element {
+  const badgeStyle = useMetalStyle()
+
   return (
     <button
       className={`sidebar-item${selected ? ' sidebar-item--active' : ''}`}
@@ -21,7 +24,9 @@ function ProjectItem({
       aria-selected={selected}
     >
       <span className="sidebar-item__name">{entry.name}</span>
-      <span className="sidebar-item__stage">{stageBadge(entry.currentStage)}</span>
+      <span className="sidebar-item__stage" style={badgeStyle}>
+        {stageBadge(entry.currentStage)}
+      </span>
       {entry.needsYou && (
         <span
           className="sidebar-item__approval"

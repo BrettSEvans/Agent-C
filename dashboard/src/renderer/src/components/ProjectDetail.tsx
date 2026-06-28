@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useMetalStyle } from '../lib/metal'
 import type { RegistryEntry, ProjectState, GitState } from '../../../shared/types'
 
 function formatAge(isoString: string): string {
@@ -16,11 +17,13 @@ function GitStateSection({
   gitState: GitState
   onRefresh: () => void
 }): JSX.Element {
+  const retryStyle = useMetalStyle()
+
   if (gitState.status === 'failed') {
     return (
       <div className="git-state git-state--failed">
         <span>Git status unavailable — check project path or git config</span>
-        <button onClick={onRefresh} className="btn btn--sm">
+        <button onClick={onRefresh} className="btn btn--sm" style={retryStyle}>
           Retry
         </button>
       </div>
@@ -33,7 +36,6 @@ function GitStateSection({
 
   const age = formatAge(gitState.computedAt)
   const isOld = gitState.status === 'cached'
-
   const files = gitState.uncommittedFiles ?? []
 
   return (
@@ -83,6 +85,8 @@ export function ProjectDetail({
   const revisions = projectState?.stages[entry.currentStage]?.revisions ?? entry.revisionCount
   const [showToast, setShowToast] = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const primaryStyle = useMetalStyle()
+  const badgeStyle = useMetalStyle()
 
   useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current) }, [])
 
@@ -111,7 +115,7 @@ export function ProjectDetail({
       )}
 
       <section className="project-detail__stage-section">
-        <span data-testid="stage-badge" className="stage-badge">
+        <span data-testid="stage-badge" className="stage-badge" style={badgeStyle}>
           {stage}
         </span>
         <span className="project-detail__revisions">Revisions: {revisions}</span>
@@ -134,6 +138,7 @@ export function ProjectDetail({
           className="btn btn--primary"
           onClick={handleOpenOrchestrator}
           aria-label="Open in orchestrator"
+          style={primaryStyle}
         >
           Open in orchestrator
         </button>

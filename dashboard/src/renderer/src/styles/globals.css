@@ -135,13 +135,55 @@ body {
   height: 100%;
 }
 
-.sidebar      { grid-area: sidebar; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+/* Sidebar layout — no flat border; the ::after strip is the visible right edge */
+.sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  border-right: none;
+  box-shadow: none;
+}
+
+/*
+ * Brushed-metal right border strip.
+ * Width ≈ 2/3 the height of the stage badge (~19px badge × 2/3 ≈ 13px).
+ * Sits above all sidebar content (z-index 10).
+ */
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 13px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  background:
+    radial-gradient(
+      ellipse 400% 70% at 50% 38%,
+      rgba(255,255,255,0.18) 0%,
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      #d0d0d0 0%,
+      #a8a8a8 18%,
+      #808080 45%,
+      #707070 55%,
+      #a8a8a8 82%,
+      #d0d0d0 100%
+    );
+  box-shadow:
+    inset 1px 0 0 rgba(255,255,255,0.22),
+    inset -1px 0 0 rgba(0,0,0,0.28),
+    2px 0 8px rgba(0,0,0,0.60);
+}
 .main-pane    { grid-area: main; overflow-y: auto; }
 footer.footer { grid-area: footer; }
 
 /* ─── Sidebar internals ──────────────────────────────────────────────────── */
 .sidebar__search {
-  padding: 12px 10px 8px;
+  padding: 12px 23px 8px 10px; /* right side clears the 13px border */
 }
 
 .sidebar__search input {
@@ -181,7 +223,7 @@ footer.footer { grid-area: footer; }
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 25px 8px 12px; /* 25px right keeps content clear of the 13px border */
   background: transparent;
   border: none;
   border-left: 2px solid transparent;
@@ -202,12 +244,29 @@ footer.footer { grid-area: footer; }
 
 .sidebar-item__stage {
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  background: var(--accent);
-  color: var(--accent-text);
-  padding: 2px 5px;
-  border-radius: var(--radius-sm);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  /* Metallic blue — same radial light model as buttons, steel-blue tones */
+  background: radial-gradient(
+    ellipse 130% 110% at var(--rx, 50%) var(--ry, 30%),
+    #88d0f0 0%,
+    #50a8d8 25%,
+    #2878b0 52%,
+    #144e80 76%,
+    #0a2e52 100%
+  );
+  color: #e8f6ff;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #0a2030;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.45),
+    inset  1px 0 0 rgba(255,255,255,0.20),
+    inset 0 -1px 0 rgba(0,0,0,0.45),
+    inset -1px 0 0 rgba(0,0,0,0.28),
+    0 2px 5px rgba(0,0,0,0.50);
+  flex-shrink: 0;
 }
 
 .sidebar-item__approval {
@@ -247,13 +306,20 @@ footer.footer { grid-area: footer; }
 }
 
 .project-detail__approval-warning {
-  background: rgba(217, 119, 6, 0.12);
-  border: 1px solid rgba(217, 119, 6, 0.35);
-  border-radius: var(--radius);
+  /* Warm-tinted steel panel for approval state */
+  background:
+    radial-gradient(ellipse 140% 80% at 50% 0%, rgba(251,191,36,0.08) 0%, transparent 65%),
+    rgba(30, 22, 8, 0.80);
+  border: 1px solid #3a2e10;
+  border-radius: 10px;
   color: #fbbf24;
   padding: 10px 14px;
   margin-bottom: 18px;
   font-size: 13px;
+  box-shadow:
+    inset 0  1px 0 rgba(251,191,36,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.40),
+    0 2px 6px rgba(0,0,0,0.45);
 }
 
 .project-detail__stage-section {
@@ -266,12 +332,28 @@ footer.footer { grid-area: footer; }
 .stage-badge {
   display: inline-block;
   font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  background: var(--accent);
-  color: var(--accent-text);
-  padding: 10px 20px;
-  border-radius: var(--radius);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  /* Same radial-steel treatment scaled down */
+  background: radial-gradient(
+    ellipse 130% 110% at var(--rx, 50%) var(--ry, 25%),
+    #e0e0e0  0%,
+    #c4c4c4 30%,
+    #989898 58%,
+    #686868 82%,
+    #484848 100%
+  );
+  color: #1a1a1a;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.60),
+    inset  1px 0 0 rgba(255,255,255,0.28),
+    inset 0 -1px 0 rgba(0,0,0,0.42),
+    inset -1px 0 0 rgba(0,0,0,0.28),
+    0 3px 8px rgba(0,0,0,0.55);
 }
 
 .project-detail__revisions {
@@ -281,11 +363,21 @@ footer.footer { grid-area: footer; }
 
 /* ─── Git state ──────────────────────────────────────────────────────────── */
 .project-detail__git {
-  background: var(--bg-mid);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  /* Raised dark-steel panel — radial glow at upper center */
+  background:
+    radial-gradient(ellipse 140% 80% at 50% 0%, rgba(255,255,255,0.05) 0%, transparent 65%),
+    var(--bg-mid);
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 22px;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.40),
+    inset  1px 0 0 rgba(255,255,255,0.05),
+    inset -1px 0 0 rgba(0,0,0,0.25),
+    0 3px 10px rgba(0,0,0,0.55),
+    0 1px 3px  rgba(0,0,0,0.40);
 }
 
 .git-state__row {
@@ -381,46 +473,107 @@ footer.footer { grid-area: footer; }
   padding: 6px 32px 0;
 }
 
+/* ─── Polished-steel mixin (radial light source) ─────────────────────────── */
+/*
+ * Light radiates from an upper-center focal point, bright at the core and
+ * falling off toward the edges — matching the conic disc look in the reference.
+ * The inset box-shadow adds a beveled rim: bright lip at top, dark at bottom.
+ */
+
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
 .btn {
   font-family: inherit;
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: var(--radius);
-  transition: background var(--transition), border-color var(--transition);
+  border-radius: 10px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Radial light: bright at upper-center, dark at edges.
+     --rx / --ry are randomised per element via useMetalStyle(). */
+  background: radial-gradient(
+    ellipse 120% 100% at var(--rx, 50%) var(--ry, 30%),
+    #ececec  0%,
+    #d0d0d0 28%,
+    #a8a8a8 55%,
+    #787878 78%,
+    #545454 100%
+  );
+
+  border: 1px solid #2e2e2e;
+  /* Rim bevel: bright inner lip at top, dark at bottom */
+  box-shadow:
+    inset 0  1px 0   rgba(255,255,255,0.65),
+    inset  1px 0 0   rgba(255,255,255,0.30),
+    inset 0 -1px 0   rgba(0,0,0,0.45),
+    inset -1px 0 0   rgba(0,0,0,0.30),
+    0 3px 8px         rgba(0,0,0,0.60),
+    0 1px 2px         rgba(0,0,0,0.40);
+
+  color: #1c1c1c;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.50);
+  transition: filter 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+  outline: none;
 }
 
-.btn--primary {
-  background: var(--accent);
-  color: var(--accent-text);
-  border: 1px solid var(--accent-hi);
-  padding: 10px 18px;
+.btn:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0  1px 0   rgba(255,255,255,0.75),
+    inset  1px 0 0   rgba(255,255,255,0.38),
+    inset 0 -1px 0   rgba(0,0,0,0.40),
+    inset -1px 0 0   rgba(0,0,0,0.26),
+    0 5px 12px        rgba(0,0,0,0.65),
+    0 2px 4px         rgba(0,0,0,0.45);
 }
-.btn--primary:hover { background: var(--accent-hi); border-color: #3a9fc0; }
+
+.btn:active {
+  filter: brightness(0.88);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0  1px 0   rgba(255,255,255,0.30),
+    inset  1px 0 0   rgba(255,255,255,0.15),
+    inset 0 -1px 0   rgba(0,0,0,0.55),
+    inset -1px 0 0   rgba(0,0,0,0.38),
+    0 1px 3px         rgba(0,0,0,0.50);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #60bfdc;
+  outline-offset: 3px;
+}
+
+.btn--primary { padding: 10px 22px; border-radius: 10px; }
 
 .btn--sm {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
+  border-radius: 7px;
 }
-.btn--sm:hover { border-color: var(--border-hi); color: var(--text-primary); }
 
 .btn--link {
   background: none;
   border: none;
+  box-shadow: none;
   color: var(--accent-text);
   font-family: inherit;
   font-size: inherit;
   cursor: pointer;
   text-decoration: underline;
+  text-shadow: none;
   padding: 0;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  border-radius: 0;
 }
-.btn--link:hover { color: var(--text-primary); }
+.btn--link:hover { color: var(--text-primary); filter: none; }
+.btn--link:active { transform: none; }
 
 /* ─── Footer ─────────────────────────────────────────────────────────────── */
 .footer {
@@ -428,8 +581,14 @@ footer.footer { grid-area: footer; }
   align-items: center;
   justify-content: space-between;
   padding: 6px 14px;
-  border-top: 1px solid var(--border);
-  background: var(--bg-dark);
+  /* Polished steel top edge: bright inner lip, deep shadow above */
+  border-top: none;
+  background:
+    radial-gradient(ellipse 80% 200% at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 55%),
+    var(--bg-dark);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 -2px 8px rgba(0,0,0,0.50);
   font-size: 11px;
   color: var(--text-muted);
 }
