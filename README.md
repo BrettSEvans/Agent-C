@@ -32,6 +32,7 @@ then proceed, revise, pause, or switch projects.
 | **Shared methods** | `elicitation` | One-question-at-a-time discovery discipline |
 | | `best-practices` | Choose current, proven practice over the most-common one |
 | | `feature-mode` | Jump into an existing codebase to build *one feature* |
+| | `stage-protocol` | Entry-mode detection + checkpoint I/O + state.json management for all roles |
 | **Stages** | `product-manager` | The **what & why** → `01-pm-brief.md` |
 | | `ux` | **How it works** — flows, IA, states → `02-ux-workflow.md` |
 | | `ui` | **Look, feel, taste & voice** → `03-ui-direction.md` |
@@ -39,6 +40,7 @@ then proceed, revise, pause, or switch projects.
 | | `engineer` | **Implementation** in code → `05-implementation.md` |
 | | `qa` | **Verify** the build against the artifacts → `qa-report` |
 | **Quality** | `critic` | Review PM/UX/UI artifacts before they're approved |
+| **Orchestration** | `orchestrator` | **Front door:** project registry, dashboard, approval gates, user dispatch |
 
 ### Three ways to use it
 
@@ -71,9 +73,15 @@ control and recommends the next stage** — you decide whether to continue.
 
 ## Status
 
-All six lifecycle roles (**PM → UX → UI → architect → engineer → QA**) plus the
-shared methods and the critic are built. Still to come: the **orchestrator** (project
-registry + automated stage sequencing + approval gates). Until then, **you are the
-orchestrator** — which is the intended v1 experience.
+**v1 complete:** All six lifecycle roles (**PM → UX → UI → architect → engineer →
+QA**), shared methods (`elicitation`, `best-practices`, `feature-mode`,
+`stage-protocol`), and the **orchestrator** are built and symlinked. The orchestrator
+owns the project registry, dashboard, and approval gates; roles own their work and
+checkpoints. Checkpointing and resumption work in v1 — interrupt a stage mid-elicitation
+and resume from the last question. Critic is integrated as an opt-in gate action on
+PM/UX/UI stages.
+
+**Next steps (post-v1, Code-only):** autonomous subagent dispatch, multi-session
+locking, per-user identity, deeper role specialization.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the complete picture.

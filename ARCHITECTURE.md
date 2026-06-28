@@ -54,6 +54,7 @@ Three kinds of skill live in `agents/`:
 | [`elicitation`](agents/elicitation/SKILL.md) | Shared method | The discipline of eliciting well — one question at a time, probe the four corners, reflect back, know when to stop. | invoked by every role |
 | [`best-practices`](agents/best-practices/SKILL.md) | Shared method | Choose current, proven best practice over the most-frequently-seen pattern; guards against frequency bias *and* its opposite (novelty-chasing). "Best practice is craft, not sameness." | invoked by every role |
 | [`feature-mode`](agents/feature-mode/SKILL.md) | Shared method | **Mode C** — jump into an existing codebase to build *one feature*: profile the project once, scope artifacts under `docs/features/<slug>/`, right-size the pipeline, and **conform** to existing conventions. | invoked by any role doing feature work |
+| [`stage-protocol`](agents/stage-protocol/SKILL.md) | Shared method | Entry-mode detection (fresh/resume/revise), checkpoint I/O, state.json management. Every role loads it to participate in the lifecycle and support interruption/resumption. | invoked by all 6 roles |
 | [`product-manager`](agents/product-manager/SKILL.md) | Role (stage 1) | Define the **what & why** — problem, users/JTBD, value, scope, metrics. | (seed) → `01-pm-brief.md` |
 | [`ux`](agents/ux/SKILL.md) | Role (stage 2) | Define **how it works** — flows, IA, screens-as-structure, states. Optional low-fi wireframes. | `01` → `02-ux-workflow.md` |
 | [`ui`](agents/ui/SKILL.md) | Role (stage 3) | Define **look, feel, taste & voice**. Carries the taste; guards against AI slop. Optional mockups. | `01`/`02` → `03-ui-direction.md` |
@@ -61,8 +62,7 @@ Three kinds of skill live in `agents/`:
 | [`engineer`](agents/engineer/SKILL.md) | Role (stage 5) | **Implement** in working, tested code — greenfield, existing-codebase, or feature. Conforms to conventions; verifies; never auto-deploys. | `01`–`04` → code + `05-implementation.md` |
 | [`qa`](agents/qa/SKILL.md) | Role (stage 6) | **Verify** the implementation against the artifacts — acceptance criteria, flows/states/edge cases, build/tests, conformance, a11y, regressions. Reports a verdict; doesn't block. | `01`–`05` + code → `qa-report` |
 | [`critic`](agents/critic/SKILL.md) | Quality | Review PM/UX/UI artifacts across 8 criteria, max two passes; reports to the human gate (does not block). | any artifact → `critic-reports/` |
-
-**Not yet built:** the **orchestrator** (owns the registry + approval gates). See §8.
+| [`orchestrator`](agents/orchestrator/SKILL.md) | Orchestration | **Front door.** Manages the project registry, shows the dashboard across all projects, presents approval gates (approve/revise/pause), dispatches the user to the next role. Manual registry-helper, v1 Desktop. | registry ↔ state.json |
 
 > **`qa` vs. `critic`:** the critic reviews *upstream artifacts* (PM/UX/UI docs)
 > before they're approved; QA verifies the *implementation* against those artifacts
@@ -86,14 +86,11 @@ flowchart LR
     CRITIC -.reviews.-> UX
     CRITIC -.reviews.-> UI
 
-    ORCH[/orchestrator* — sequencing, registry, gates/]
+    ORCH[/orchestrator — sequencing, registry, gates/]
     ORCH -.owns approval gate between every stage.-> PM
-
-    classDef todo stroke-dasharray: 5 5;
-    class ORCH todo;
 ```
 
-`* = not yet built.` Each arrow is an **approval gate**: the human (or orchestrator)
+Each arrow is an **approval gate**: the human (or orchestrator)
 reviews the artifact and decides whether to proceed, revise, pause, or switch
 projects. Deferred items accumulate in `docs/product/backlog.md` at every stage.
 
@@ -190,34 +187,38 @@ ln -s "$(pwd)/agents/<name>" ~/.claude/skills/<name>
 
 The canonical file is `agents/<name>/SKILL.md`; the symlink makes it live in the
 user's skill directory. Editing the repo file edits the live skill. Current links:
-`elicitation`, `best-practices`, `feature-mode`, `product-manager`, `ux`, `ui`,
-`architect`, `engineer`, `qa`, `critic`.
+`elicitation`, `best-practices`, `feature-mode`, `stage-protocol`, `product-manager`,
+`ux`, `ui`, `architect`, `engineer`, `qa`, `critic`, `orchestrator`.
 
 ---
 
 ## 8. Build status
 
-**Built:** `elicitation`, `best-practices`, `feature-mode`, `product-manager`, `ux`,
-`ui`, `architect`, `engineer`, `qa`, `critic` — all symlinked, with the
-operating-modes + analysis + handoff contract + customizing structure. **All six
-lifecycle roles (PM → UX → UI → architect → engineer → QA) now exist**, completing
-the thin slice through the whole lifecycle.
+**Built:** `elicitation`, `best-practices`, `feature-mode`, `stage-protocol`,
+`product-manager`, `ux`, `ui`, `architect`, `engineer`, `qa`, `critic`,
+`orchestrator` — all symlinked with operating-modes + analysis + handoff contract +
+customizing structure. **All six lifecycle roles (PM → UX → UI → architect → engineer
+→ QA) and the orchestrator now exist**, completing the thin slice through the whole
+lifecycle plus v1 sequencing/approval gates.
+
+**Stage protocol (v1 lifecycle feature):** the shared `stage-protocol` skill provides
+entry-mode detection (fresh/resume/revise), checkpoint I/O, and state.json management
+for all six roles. Supports interruption/resumption within a stage.
+
+**Orchestrator (v1 front door):** the manual `orchestrator` skill runs in Claude
+Desktop and owns the project registry, dashboard, approval-gate loop, and user
+dispatch. It tells the user which skill to invoke next (never auto-chains). Integrates
+critic as an opt-in gate action on PM/UX/UI.
 
 **Thin agent wrappers** for the 6 stages + critic live in `agent-defs/` (one `.md`
 each). They dispatch to the matching skill via the Skill tool, falling back to
 reading `SKILL.md` directly — robust to the unverified assumption that a subagent can
 invoke the Skill tool. They are **Claude Code-only** (Desktop has no subagents) and
-**idle until the orchestrator** exists to dispatch them. See
-[`agent-defs/README.md`](agent-defs/README.md).
+**idle until autonomous dispatch** is built (post-v1). See [`agent-defs/README.md`](agent-defs/README.md).
 
 **Approach to v1:** a thin slice through the *whole* lifecycle (all roles shallow)
-before deepening any one.
-
-**Not yet built:**
-- The **orchestrator** — owns the project registry, stage sequencing, and approval
-  gates. It consumes the UX workflow's touchpoints/states and the architect's
-  registry/state design as *requirements*. Until it exists, the **human is the
-  orchestrator** in manual use.
+plus manual orchestration and checkpointing before deepening any one role or adding
+autonomous dispatch.
 
 Agent-C has been run on itself: `docs/product/` holds `01-pm-brief.md`,
 `02-ux-workflow.md`, `backlog.md`, `wireframes/`, and `critic-reports/`.
@@ -254,13 +255,15 @@ Agent-C/
 │   ├── elicitation/           # shared method: how to elicit
 │   ├── best-practices/        # shared method: choose current best practice
 │   ├── feature-mode/          # shared method: Mode C — feature jump-in
+│   ├── stage-protocol/        # shared method: entry modes + checkpoint I/O + state.json
 │   ├── product-manager/       # stage 1 — what & why → 01-pm-brief.md
 │   ├── ux/                    # stage 2 — how it works → 02-ux-workflow.md
 │   ├── ui/                    # stage 3 — look & feel → 03-ui-direction.md
 │   ├── architect/             # stage 4 — architecture → 04-architecture.md
 │   ├── engineer/              # stage 5 — implementation → code + 05-implementation.md
 │   ├── qa/                    # stage 6 — verification → qa-report
-│   └── critic/                # quality review of PM/UX/UI artifacts
+│   ├── critic/                # quality review of PM/UX/UI artifacts
+│   └── orchestrator/          # front door: registry, dashboard, approval gates
 ├── agent-defs/                # thin subagent wrappers (Code-only): 6 stages + critic
 └── docs/
     ├── DUAL-MODE-SKILL-PATTERN.md
