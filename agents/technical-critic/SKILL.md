@@ -46,9 +46,10 @@ Review across all eight dimensions. For each, decide: **passes** or **issue foun
 1. **Engineering best practices** — does this follow current, idiomatic best
    practice for the chosen stack (per the shared `best-practices` skill), not the
    most-frequently-seen default? Architect: are decisions ADR-justified against the
-   drivers? Engineer: is the code idiomatic, typed, structured per the
-   architecture? QA: are the tests meaningful (behavior, edges) rather than
-   coverage theater?
+   drivers? Engineer: is the code idiomatic, typed, structured per the architecture,
+   and **test-driven** — meaningful tests covering the behavior, with any visual-only
+   surfaces explicitly flagged rather than silently untested? QA: are the tests
+   meaningful (behavior, edges) rather than coverage theater?
 2. **Upstream consistency** — does the artifact honor the brief's scope/non-goals
    and NFRs, the UX flows/states/edge-cases, and the UI direction? Architecture
    must *satisfy* those requirements; code must *implement* them; QA must *verify*
