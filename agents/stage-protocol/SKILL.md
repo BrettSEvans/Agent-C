@@ -35,16 +35,16 @@ On every invocation, detect the current mode from the track's `state.json`:
 
 | Mode | Condition | Behavior |
 |---|---|---|
-| **fresh** | `state.json` does not exist, OR exists but `checkpoint == null` and artifact does not exist | Read prior artifact (if in full workflow) → run full elicitation from theme 1 |
-| **resume** | `checkpoint != null` and artifact incomplete (status != "awaiting-approval") | Skip themes in `checkpoint.themesCompleted`; continue from `checkpoint.currentTheme` |
-| **revise** | artifact complete AND `pendingFeedback.stage == this stage` | Load the artifact, apply `pendingFeedback.text` as a **targeted edit**, re-confirm only what changed, rewrite, `revisions += 1`, clear `pendingFeedback`, `checkpoint = null` |
+| **fresh** | `state.json` does not exist, OR exists but `checkpoint == null` and artifact does not exist | Read prior artifact (if in full workflow) → run full elicitation from section 1 |
+| **resume** | `checkpoint != null` and artifact incomplete (status != "awaiting-approval") | Skip sections in `checkpoint.sectionsCompleted`; continue from `checkpoint.currentSection` |
+| **revise** | artifact complete AND `pendingFeedback.stage == this stage` | Load the artifact, apply `pendingFeedback.text` as a **targeted edit**, re-confirm only what changed, rewrite, `stages.<thisStage>.revisions += 1`, clear `pendingFeedback`, `checkpoint = null` |
 
-**Detection logic:**
-1. Check if `state.json` exists. If not, **fresh**.
-2. If it exists, check `checkpoint`:
-   - `checkpoint == null` → **fresh** (no resume point, start from theme 1)
-   - `checkpoint != null` → **resume** (pick up from `checkpoint.currentTheme`)
-3. If artifact exists AND `status == "awaiting-approval"` AND `pendingFeedback.stage == this stage` → **revise** (load artifact, apply feedback as targeted edit)
+**Detection logic (check in this order):**
+1. If artifact exists AND `status == "awaiting-approval"` AND `pendingFeedback.stage == this stage` → **revise** (check this FIRST).
+2. Check if `state.json` exists. If not, → **fresh**.
+3. If `state.json` exists, check `stages.<thisStage>.checkpoint`:
+   - `checkpoint == null` → **fresh** (no resume point, start from section 1)
+   - `checkpoint != null` → **resume** (pick up from `checkpoint.currentSection`)
 
 **Graceful standalone:** If no `state.json` exists (pure manual use outside any
 registered project), run **fresh** and create a `state.json` at the appropriate
@@ -54,26 +54,36 @@ location so the work is resumable.
 
 ## 3. Checkpoint I/O and persistence
 
-After each theme completes (the user confirms their answer and you move to the
+After each section completes (the user confirms their answer and you move to the
 next question):
 
-**Write checkpoint to `state.json`:**
+**Write checkpoint to `state.json` at `stages.<thisStage>.checkpoint`:**
 ```jsonc
-"checkpoint": {
-  "themesCompleted": [...],    // array of completed theme names
-  "currentTheme": "...",        // name of the theme about to start
-  "draftPath": "...",           // path to the partial artifact (if any written)
-  "notes": "..."                // optional session notes (user's priorities, emerging decisions)
+"stages": {
+  "pm": {
+    "status": "in-progress",
+    "checkpoint": {
+      "sectionsCompleted": [...],    // array of completed section names
+      "currentSection": "...",        // name of the section about to start
+      "draftPath": "...",           // path to the partial artifact (if any written)
+      "notes": "..."                // optional session notes (user's priorities, emerging decisions)
+    }
+  }
 }
 ```
 
-Example after theme 2 completes in a PM brief:
+Example after section 2 completes in a PM brief:
 ```jsonc
-"checkpoint": {
-  "themesCompleted": ["problem", "users"],
-  "currentTheme": "alternatives",
-  "draftPath": "docs/product/01-pm-brief.md",
-  "notes": "User leaning toward B2B; confirm in next theme"
+"stages": {
+  "pm": {
+    "status": "in-progress",
+    "checkpoint": {
+      "sectionsCompleted": ["problem", "users"],
+      "currentSection": "alternatives",
+      "draftPath": "docs/product/01-pm-brief.md",
+      "notes": "User leaning toward B2B; confirm in next section"
+    }
+  }
 }
 ```
 
@@ -82,7 +92,7 @@ Example after theme 2 completes in a PM brief:
 - Set `status = "awaiting-approval"` (signal that the stage is ready for review)
 - Write `state.json`
 
-Interruption loses at most the in-flight question (the current theme). On
+Interruption loses at most the in-flight question (the current section). On
 resume, the role re-asks that question.
 
 ---
@@ -94,13 +104,13 @@ When a stage re-enters in **revise** mode (feedback from the user or critic):
 1. **Load the artifact** from disk (the artifact written at `awaiting-approval`).
 2. **Load `pendingFeedback.text`** — it contains the requested change(s).
 3. **Apply the feedback as a targeted edit, NOT a full re-run.** Ask the user to
-   confirm/refine only the parts that are changing; don't re-walk all the themes.
+   confirm/refine only the parts that are changing; don't re-walk all the sections.
    - Example: if feedback is "the user flows section is too thin," re-elicit
      *just* flows, not problem/users/alternatives/etc.
    - Example: if feedback is "rephrase the value prop for clarity," ask only
      about the value prop phrasing.
 4. **Rewrite the artifact** with the changes applied.
-5. **Increment `revisions`** in `state.json` (proof that a revision cycle happened).
+5. **Increment `stages.<thisStage>.revisions`** in `state.json` (proof that a revision cycle happened).
 6. **Clear `pendingFeedback`** (set to `null`) so the next gate action starts fresh.
 7. **Set `checkpoint = null`** (revise is complete, artifact is updated, ready for
    next gate review).
@@ -155,8 +165,8 @@ to fix; you fix it and re-confirm it, not re-discover the whole artifact.
 **Checkpoint structure** (only present if stage is mid-run):
 ```jsonc
 "checkpoint": {
-  "themesCompleted": ["problem", "users", "alternatives"],
-  "currentTheme": "value-prop",
+  "sectionsCompleted": ["problem", "users", "alternatives"],
+  "currentSection": "value-prop",
   "draftPath": "docs/product/01-pm-brief.md",
   "notes": "user leaning B2B; confirm pricing next"
 }
@@ -167,7 +177,7 @@ to fix; you fix it and re-confirm it, not re-discover the whole artifact.
 ## 6. Write ownership boundary
 
 **The stage role writes:**
-- Its checkpoint (after each theme completes)
+- Its checkpoint (after each section completes)
 - Its artifact (when complete)
 - Its revisions counter (when entering revise mode)
 - Clears `pendingFeedback` (after applying feedback in revise)
@@ -192,12 +202,12 @@ protocol:
 2. Locate the track's `state.json` (product track or feature track).
 3. Call the stage-protocol entry-mode detection (detect fresh/resume/revise).
 4. Act accordingly:
-   - **Fresh:** run full elicitation from theme 1
+   - **Fresh:** run full elicitation from section 1
    - **Resume:** skip completed themes, continue from last checkpoint
    - **Revise:** load artifact, apply feedback, re-confirm changed parts only
 
 **During elicitation:**
-- After each theme completes, write a checkpoint to `state.json`.
+- After each section completes, write a checkpoint to `state.json`.
 - Checkpoint captures what's done, what's next, and any session notes.
 
 **On artifact complete:**
@@ -210,7 +220,7 @@ protocol:
 - Load the artifact and `pendingFeedback.text`.
 - Apply the feedback as a targeted edit (ask about the specific changes only).
 - Rewrite the artifact.
-- Increment `revisions`.
+- Increment `stages.<thisStage>.revisions`.
 - Clear `pendingFeedback`, set `checkpoint = null`.
 - Write `state.json`.
 - Return control to the gate.
@@ -222,12 +232,12 @@ protocol:
 **Session 1: PM brief, interrupted mid-elicitation**
 
 1. PM role invokes; detects `state.json` missing → **fresh**.
-2. Runs elicitation themes: problem (done), users (done), alternatives (in-flight, user interrupted).
+2. Runs elicitation sections: problem (done), users (done), alternatives (in-flight, user interrupted).
 3. Checkpoint written:
    ```jsonc
    "checkpoint": {
-     "themesCompleted": ["problem", "users"],
-     "currentTheme": "alternatives",
+     "sectionsCompleted": ["problem", "users"],
+     "currentSection": "alternatives",
      "draftPath": "docs/product/01-pm-brief.md",
      "notes": "..."
    }
@@ -237,7 +247,7 @@ protocol:
 **Session 2: Resume brief**
 
 1. PM role invokes; detects `checkpoint != null` → **resume**.
-2. Skips problem, users; starts with "alternatives" (the `currentTheme`).
+2. Skips problem, users; starts with "alternatives" (the `currentSection`).
 3. Completes the 8 themes.
 4. Writes artifact, sets `checkpoint = null`, `status = "awaiting-approval"`.
 5. Hands off to orchestrator gate.
@@ -261,7 +271,9 @@ protocol:
   project at a time. No multi-session locking or merging.
 - **Critic integration:** when `pendingFeedback.source == "critic"`, the role
   still applies it as a targeted revise. The `reportPath` field lets the role
-  link back to the critic's full report if needed.
+  link back to the critic's full report if needed. **The orchestrator owns
+  incrementing `stages.<thisStage>.criticPasses`** when the user invokes the critic
+  via the `[r]` gate action — the role does not increment it.
 - **Feature mode (Mode C):** feature tracks use the same `state.json` schema,
   with a right-sized `stages` object (only the stages that apply to the feature).
   Same checkpoint and revise logic.
