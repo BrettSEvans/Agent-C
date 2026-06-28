@@ -203,6 +203,13 @@ operating-modes + analysis + handoff contract + customizing structure. **All six
 lifecycle roles (PM → UX → UI → architect → engineer → QA) now exist**, completing
 the thin slice through the whole lifecycle.
 
+**Thin agent wrappers** for the 6 stages + critic live in `agent-defs/` (one `.md`
+each). They dispatch to the matching skill via the Skill tool, falling back to
+reading `SKILL.md` directly — robust to the unverified assumption that a subagent can
+invoke the Skill tool. They are **Claude Code-only** (Desktop has no subagents) and
+**idle until the orchestrator** exists to dispatch them. See
+[`agent-defs/README.md`](agent-defs/README.md).
+
 **Approach to v1:** a thin slice through the *whole* lifecycle (all roles shallow)
 before deepening any one.
 
@@ -211,7 +218,6 @@ before deepening any one.
   gates. It consumes the UX workflow's touchpoints/states and the architect's
   registry/state design as *requirements*. Until it exists, the **human is the
   orchestrator** in manual use.
-- Thin **agent wrappers** in `agent-defs/` (currently empty).
 
 Agent-C has been run on itself: `docs/product/` holds `01-pm-brief.md`,
 `02-ux-workflow.md`, `backlog.md`, `wireframes/`, and `critic-reports/`.
@@ -242,7 +248,8 @@ contract:
 
 ```
 Agent-C/
-├── ARCHITECTURE.md            # this file
+├── README.md                  # front door / quick start
+├── ARCHITECTURE.md            # this file (full design)
 ├── agents/                    # canonical skills (symlinked into ~/.claude/skills/)
 │   ├── elicitation/           # shared method: how to elicit
 │   ├── best-practices/        # shared method: choose current best practice
@@ -254,7 +261,7 @@ Agent-C/
 │   ├── engineer/              # stage 5 — implementation → code + 05-implementation.md
 │   ├── qa/                    # stage 6 — verification → qa-report
 │   └── critic/                # quality review of PM/UX/UI artifacts
-├── agent-defs/                # (reserved) thin agent wrappers
+├── agent-defs/                # thin subagent wrappers (Code-only): 6 stages + critic
 └── docs/
     ├── DUAL-MODE-SKILL-PATTERN.md
     └── product/               # Agent-C's own lifecycle artifacts (whole-product)
