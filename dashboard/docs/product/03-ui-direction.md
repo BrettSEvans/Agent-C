@@ -160,6 +160,65 @@ Open in a browser to see the aesthetic in action.
 
 ---
 
+---
+
+## Post-approval design evolution (engineer phase, 2026-06-28)
+
+These decisions were made during engineering in collaboration with the user. They supersede or extend the corresponding sections above. Any future UI revision should treat this section as authoritative.
+
+### Light model changed: horizontal brush → radial point source
+
+The original direction specified "hand-buffed brushstrokes at overlapping angles (18°, -22°, 82°)." During engineering this was replaced with a **radial light source** — light radiates outward from a focal point, like a polished metal disc under a point light. The focal point is randomised per element per app reload, so no two buttons ever look identical.
+
+CSS implementation:
+```css
+background: radial-gradient(
+  ellipse 120% 100% at var(--rx, 50%) var(--ry, 30%),
+  #ececec 0%, #d0d0d0 28%, #a8a8a8 55%, #787878 78%, #545454 100%
+);
+```
+`--rx` / `--ry` are set randomly on mount by the `useMetalStyle()` React hook (`src/renderer/src/lib/metal.ts`).
+
+### Buttons: steel plate with bevel rim
+
+Original direction: "Steel-blue background, 4px radius, no rounded corners."
+Actual: All action buttons are now **polished grey steel plates** — radial gradient surface, inset bevel box-shadow (bright top/left rim, dark bottom/right), 10px radius. On click they press down 1px. Hover brightens by 6%. "Open in orchestrator" copies the command and shows a 5-second inline toast ("Copied — paste into Claude Desktop").
+
+### Stage badges in sidebar: metallic blue (not flat)
+
+Original direction: "10px, steel-blue background (#1f5f7f), light text."
+Actual: `.sidebar-item__stage` uses the same radial light model with a **steel-blue palette** (bright `#88d0f0` at focal point → deep navy `#0a2e52` at edges), inset bevel, and a dark border. Text is `#e8f6ff`. The blue family is preserved but rendered as a polished metal surface rather than a flat fill.
+
+### Stage badge in project detail: polished grey steel
+
+Original direction: "Steel-blue badge, 18px, dominates visually."
+Actual: The main-pane stage badge uses the grey radial-steel treatment (not blue), with its own randomly seeded focal point. This distinguishes it visually from the sidebar's blue badges.
+
+### Panel/card borders: inset bevel, not flat lines
+
+Original direction: "Subtle cards (#1a1a1a background, 1px #333 border)."
+Actual: The git state card, approval warning, and footer use `box-shadow` inset bevels instead of flat borders — a bright inner lip at the top and a dark inner edge at the bottom simulate a raised metal panel sitting on the dark surface. The approval warning uses a warm-tinted version of the same treatment.
+
+### Sidebar right border: 13px brushed-metal strip
+
+A visible structural element — a 13px-wide brushed grey metal strip on the right edge of the sidebar (`::after` pseudo-element). Width is ≈ 2/3 the height of the stage badge, making it prominent enough to show the metal texture as a design feature, not just a divider line.
+
+### Space Grotesk: bundled, not CDN
+
+Original assumption: "Space Grotesk available via Google Fonts or bundled."
+Actual: Bundled via `@fontsource/space-grotesk` (400/500/600/700 weights imported in `main.tsx`). No CDN calls; offline-first. CSP has no external font origins.
+
+### Uncommitted file list in git state panel
+
+When a project has uncommitted changes, the git state card lists each file with a colour-coded status pill:
+- `modified` → amber (`#c89632`)
+- `added` → green (`#50a050`)
+- `deleted` → red (`#be3c3c`)
+- `renamed` → blue (`#5078c8`)
+- `untracked` → muted grey
+
+---
+
 ## Next handoff
 
 **Architect** → reads `01-pm-brief.md`, `02-ux-workflow.md`, and `03-ui-direction.md` (this doc). Designs the technical architecture and system, writes `docs/product/04-architecture.md`.

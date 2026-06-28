@@ -1,25 +1,27 @@
 # Implementation — Agent-C Dashboard
 
-> Built by the engineer from 01–04. Read by QA next.
-> Date: 2026-06-28
+> Built by the engineer from 01–04. Last updated: 2026-06-28.
+> Reflects all post-QA fixes and post-engineering visual iterations.
 
 ## What was built
 
 A local-only Electron desktop app (macOS/Linux/Windows) that reads
 `~/.agent-c/registry.json` and per-project `state.json` files to show a live
-dashboard of all Agent-C projects — stage, status, approval needs, and git state.
+dashboard of all Agent-C projects — stage, status, approval needs, git state,
+and uncommitted file list.
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| App shell | Electron 33 |
-| Build | electron-vite 2 (Vite 5, 3-target: main / preload / renderer) |
-| Frontend | React 18 + TypeScript |
-| State | Zustand 5 |
-| File watching | chokidar 3 |
-| Git concurrency | p-limit 6 |
-| Tests | Vitest 2 + @testing-library/react 16 |
+| Layer | Choice | Notes |
+|---|---|---|
+| App shell | Electron 33 | contextIsolation ON, nodeIntegration OFF |
+| Build | electron-vite 2 (Vite 5) | 3-target: main / preload / renderer |
+| Frontend | React 18 + TypeScript | |
+| State | Zustand 5 | SWR pattern for git cache |
+| File watching | chokidar 3 | registry.json + all state.json files |
+| Git concurrency | inline `createLimiter(6)` | replaced p-limit (ESM-only, crashes Electron CJS main) |
+| Font | @fontsource/space-grotesk | bundled 400/500/600/700 — no CDN, offline-first |
+| Tests | Vitest 2 + @testing-library/react 16 | 68 tests across 7 suites |
 
 ## How to run
 
@@ -31,10 +33,9 @@ npm run build     # production build → out/
 npm test          # run the test suite
 ```
 
-**Registry path override (for tests/dev):**
-Set `AGENT_C_REGISTRY=/path/to/registry.json` to point at a non-default registry.
+**Registry path override:** `AGENT_C_REGISTRY=/path/to/registry.json`
 
-## Files created
+## Files
 
 ```
 dashboard/
@@ -43,110 +44,141 @@ dashboard/
 ├── tsconfig.json / tsconfig.node.json / tsconfig.web.json
 ├── vitest.config.ts
 └── src/
-    ├── shared/types.ts                           # shared type definitions
-    ├── test-setup.ts                             # jest-dom matchers
+    ├── shared/types.ts                           # shared types incl. UncommittedFile, GitState
+    ├── test-setup.ts
     ├── main/
     │   ├── index.ts                              # Electron main process
-    │   ├── ipc/handlers.ts                       # ipcMain registrations
+    │   ├── ipc/handlers.ts                       # ipcMain registrations + SWR cache
     │   └── services/
-    │       ├── registry-reader.ts                # parses registry.json (tolerant)
-    │       ├── state-reader.ts                   # parses state.json (tolerant)
-    │       ├── git-service.ts                    # execFile git, cap-6 throttle
-    │       ├── watcher-service.ts                # chokidar watcher
-    │       ├── persistence.ts                    # userData JSON (recent + git cache)
-    │       └── clipboard-service.ts              # /orchestrator copy
+    │       ├── registry-reader.ts                # tolerant registry.json parser
+    │       ├── state-reader.ts                   # tolerant state.json parser
+    │       ├── git-service.ts                    # parseStatusFiles, parseRevListOutput,
+    │       │                                     #   createGitService(execFileFn),
+    │       │                                     #   gitService (cap-6 via createLimiter)
+    │       ├── watcher-service.ts                # chokidar EventEmitter
+    │       ├── persistence.ts                    # MRU recent list + git cache (userData JSON)
+    │       └── clipboard-service.ts              # copyOrchestratorCommand
     ├── preload/index.ts                          # contextBridge window.api
     └── renderer/
-        ├── index.html
+        ├── index.html                            # no external font/CDN links; tight CSP
         └── src/
-            ├── main.tsx
-            ├── App.tsx                           # root + IPC wiring
-            ├── store/index.ts                    # Zustand store + SWR logic
-            ├── styles/globals.css                # brushed-steel texture, palette
+            ├── main.tsx                          # mounts app; imports @fontsource weights
+            ├── App.tsx                           # root + IPC wiring + handleSelectProject
+            ├── lib/metal.ts                      # useMetalStyle() hook — random --rx/--ry
+            ├── store/index.ts                    # Zustand store + filteredProjects + SWR
+            ├── styles/globals.css                # full design system (see Visual design below)
             └── components/
-                ├── Sidebar.tsx
-                ├── ProjectDetail.tsx
+                ├── Sidebar.tsx                   # search, recent, all-projects, metal badges
+                ├── ProjectDetail.tsx             # detail pane, file list, toast
                 ├── FeatureDetail.tsx
                 └── Footer.tsx
 ```
 
 ## Key implementation decisions
 
-- **Tolerant parsing in both readers:** unknown fields ignored; missing optional
-  fields defaulted; schema version mismatch produces a warning, not a crash.
-  Guards against schema drift between orchestrator and dashboard versions.
+**Tolerant parsing:** both readers ignore unknown fields, default missing optionals,
+and warn on schema version mismatch — guards against orchestrator/dashboard drift.
 
-- **git-service uses dependency injection (`createGitService(execFileFn)`):**
-  production uses `child_process.execFile`; tests pass a mock. This makes the
-  git parsing logic (status porcelain, rev-list) fully unit-testable without
-  spawning real git processes.
+**git-service dependency injection:** `createGitService(execFileFn)` takes the
+exec function as a parameter so unit tests pass a mock. `parseStatusFiles(output)`
+replaces the original `parseStatusOutput` — it returns `UncommittedFile[]`
+(statusCode, label, path) instead of a count; the count is derived from `.length`.
 
-- **SWR pattern in the store:** `isStale(path)` checks whether the git cache
-  entry is older than 30 seconds. App.tsx triggers revalidation on project open
-  (stale-while-revalidate: show cached immediately, fetch fresh in background).
+**Inline concurrency limiter:** `p-limit` (all versions ≥ 4) is ESM-only and
+crashes Electron's CJS main process with `ERR_REQUIRE_ESM`. Replaced with a
+12-line `createLimiter(n)` function in `git-service.ts` — same cap-6 semantics,
+zero external dependency.
 
-- **Background batch git on startup:** `App.tsx` fires `loadGitState` for all
-  projects concurrently without awaiting — the cap-6 concurrency limit in
-  `git-service.ts` is enforced by `p-limit` inside the production `gitService`
-  instance. (The production `gitService` singleton exports `p-limit`-wrapped
-  `execFile`; the test factory bypasses this so the mock receives raw calls.)
+**SWR pattern:** `isStale(path)` checks git cache age > 30 s. `handleSelectProject`
+in App.tsx calls `addRecent` + `loadGitState`; this is the only entry point for
+selecting a project — Sidebar receives it as an `onSelect` prop so the recent list
+and SWR revalidation are never bypassed.
 
-- **Freshness contract:** the watcher watches `registry.json` + all
-  `state.json` files. On `registry-changed`, the app re-reads all entries and
-  refreshes state for each. This depends on the orchestrator touching
-  `registry.json` on every transition (documented dependency in `04-architecture.md`).
+**useMetalStyle() hook:** returns a stable `{ '--rx': string, '--ry': string }`
+object seeded randomly once per component mount (via `useRef`). Inlined as `style`
+on every `.btn` and `.sidebar-item__stage` element. CSS uses `var(--rx, 50%)`
+and `var(--ry, 30%)` in radial gradients so each element has a unique focal point
+that varies on every reload.
 
-- **Security:** `contextIsolation: true`, `nodeIntegration: false`;
-  `contextBridge` exposes only the allow-listed `window.api`; git invocations
-  use `execFile` with arg arrays (no shell interpolation).
+**Security:** `contextIsolation: true`, `nodeIntegration: false`; contextBridge
+exposes only the allow-listed `window.api`; git uses `execFile` with arg arrays.
 
-## Test suite results
+## Post-QA fixes applied (2026-06-28)
+
+| ID | Issue | Fix |
+|---|---|---|
+| S1 | p-limit installed but not wired into production `gitService` | Added `createLimiter(6)` wrapping `execFileAsync` in the production singleton |
+| S2 | `Sidebar` called `selectProject` from the store directly, bypassing `handleSelectProject` in App.tsx (recent list + SWR revalidation skipped) | `Sidebar` now accepts `onSelect` prop; App.tsx passes `handleSelectProject` |
+| S3 | Space Grotesk loaded from Google Fonts CDN (offline-first violated; external font CSP) | Bundled via `@fontsource/space-grotesk`; CDN `<link>` and external font CSP entries removed |
+
+## Visual design (current — see also 03-ui-direction.md §Post-approval evolution)
+
+The implemented visual style diverged from the original direction during engineering.
+The authoritative description of what was actually built is in
+`03-ui-direction.md` under **Post-approval design evolution**. Summary:
+
+- **Light model:** Radial point source (not horizontal brush stripes). CSS
+  `radial-gradient(ellipse at var(--rx) var(--ry), …)` — focal point randomised
+  per button per reload via `useMetalStyle()`.
+- **Buttons:** Polished grey steel plates — radial surface, inset bevel rim
+  (bright top, dark bottom), 10px radius, 1px press on `:active`.
+- **Sidebar stage badges:** Metallic blue radial gradient (bright `#88d0f0` →
+  deep navy `#0a2e52`) with bevel. Same light model as buttons.
+- **Stage badge (detail pane):** Grey radial steel — visually distinct from
+  sidebar badges.
+- **Panel borders:** Inset bevel box-shadows simulate raised metal panels
+  (git card, approval warning, footer).
+- **Sidebar right border:** 13px brushed grey metal strip via `::after`
+  (≈ 2/3 the height of the stage badge).
+- **Uncommitted file list:** Colour-coded status pills (amber/green/red/blue/grey)
+  shown in the git state card when `uncommittedFiles.length > 0`.
+- **"Open in orchestrator" toast:** 5-second inline status message after click.
+
+## Test suite (current)
 
 ```
- ✓ src/main/services/__tests__/registry-reader.test.ts (6 tests)
- ✓ src/main/services/__tests__/state-reader.test.ts    (6 tests)
- ✓ src/main/services/__tests__/git-service.test.ts     (9 tests)
- ✓ src/main/services/__tests__/persistence.test.ts     (7 tests)
- ✓ src/renderer/src/store/__tests__/store.test.ts      (11 tests)
- ✓ src/renderer/src/components/__tests__/Sidebar.test.tsx     (7 tests)
- ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (10 tests)
+ ✓ src/main/services/__tests__/registry-reader.test.ts   (6 tests)
+ ✓ src/main/services/__tests__/state-reader.test.ts      (6 tests)
+ ✓ src/main/services/__tests__/git-service.test.ts      (15 tests)
+ ✓ src/main/services/__tests__/persistence.test.ts       (7 tests)
+ ✓ src/renderer/src/store/__tests__/store.test.ts        (11 tests)
+ ✓ src/renderer/src/components/__tests__/Sidebar.test.tsx      (7 tests)
+ ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (16 tests)
 
  Test Files  7 passed (7)
-      Tests  56 passed (56)
+      Tests  68 passed (68)
 ```
 
-**TDD evidence — what each test file pins down:**
-
-| File | Behaviors covered |
+| Suite | Behaviors covered |
 |---|---|
-| registry-reader | valid parse; unknown-field tolerance; schema mismatch warning; missing file; corrupt JSON; missing optional field defaults |
+| registry-reader | valid parse; unknown-field tolerance; schema mismatch warning; missing file; corrupt JSON; optional field defaults |
 | state-reader | valid parse; missing stage defaults; missing file; corrupt JSON; schema version; pendingFeedback preservation |
-| git-service | `parseStatusOutput`; `parseRevListOutput`; happy path (uncommitted + unpushed); no-upstream (unpushed = 0); git-not-found → failed |
+| git-service | `parseStatusFiles` (empty, blank lines, M/M /??/A /D /, multi-file); `parseRevListOutput`; happy path with file list; clean tree; no-upstream; git-not-found → failed |
 | persistence | recent save/load; dedup + MRU; trim to 10; git cache save/update/null miss |
 | store | initial state; setProjects; selectProject; updateGitState; isStale fresh/stale/unknown; addRecent dedup; search filter; empty search |
-| Sidebar | search input render; project list render; approval flag; click → selectProject; search filter; recent section conditional |
-| ProjectDetail | name heading; stage badge; revision count; approval warning; no warning when in-progress; uncommitted/unpushed counts; Open in orchestrator button + click; cached age label; failed state |
+| Sidebar | search input; project list; approval flag; click → onSelect prop; search filter; recent section conditional; no recent section when empty |
+| ProjectDetail | name/badge/revisions; approval warning; no warning when in-progress; git counts; file list paths; file status labels; no file list when clean; Open in orchestrator button + API call; toast shows on click; toast gone after 5 s; toast absent before click; cached age; failed state |
 
-**Visual-only surfaces deferred to QA's visual/a11y pass:**
-- Brushed-steel CSS texture (repeating-linear-gradients, radial patches)
-- Space Grotesk font loading
-- Color palette custom properties
-- Hover/focus transition animations (0.15s ease)
-- WCAG AA contrast check
+**Visual-only surfaces (not unit-tested — deferred to QA visual/a11y pass):**
+- Radial gradient focal point randomisation (visual output of `useMetalStyle`)
+- Brushed-steel sidebar texture (repeating-linear-gradients)
+- Hover/active/focus transition animations
+- WCAG AA contrast verification
+- Sidebar 13px border strip appearance
 
-## Build results
+## Build
 
 ```
-out/main/index.js        11.93 kB
-out/preload/index.js      1.20 kB
-out/renderer/index.html   0.88 kB
-out/renderer/assets/      10.05 kB CSS + 230.57 kB JS
+out/main/index.js          ~12 kB
+out/preload/index.js        ~1 kB
+out/renderer/index.html    ~0.9 kB
+out/renderer/assets/       ~17 kB CSS + ~231 kB JS + ~130 kB woff/woff2 fonts
 ```
 
-Build: clean (no errors, no warnings beyond Vite CJS deprecation notice).
-TypeScript: clean (`tsc --noEmit` exits 0).
+Build: clean. TypeScript: clean.
 
 ## Next handoff
 
-QA → reads `01`–`05`, derives acceptance criteria from the artifacts, and
-verifies the implementation. Visual/a11y pass covers the deferred styling surfaces.
+QA → re-verify against artifacts (this is the second engineer pass; S1–S3 are
+fixed). Visual/a11y pass should cover the polished-steel button and badge
+rendering, sidebar border strip, and toast behaviour.
