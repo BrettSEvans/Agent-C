@@ -158,9 +158,21 @@ When the implementation is built and verified:
    - **Mode A (greenfield):** `<project>/docs/product/05-implementation.md`
    - **Mode B (existing change):** a short summary in chat (+ a doc if the user wants
      one).
-3. **Record deferred items in the backlog** — `<project>/docs/product/backlog.md`
+3. **Sync upstream artifacts for any approved divergences.** If the implementation
+   diverged from an upstream artifact — a design decision evolved during engineering,
+   a stack choice changed, a UX edge case was resolved differently — document it in
+   the relevant artifact *before* handing off:
+   - Design divergences → add a `## Post-approval design evolution` section to
+     `03-ui-direction.md` describing what was actually built and why.
+   - Architecture divergences → add a note to `04-architecture.md` (or flag back
+     to the architect if the divergence is significant enough to revisit).
+   - Keep `05-implementation.md` accurate to the code as shipped, not the original
+     plan. QA reads this doc; if it's stale, QA's acceptance criteria will be wrong.
+   - **Silent divergence is a bug in the artifact chain.** The next agent in the
+     lifecycle reads the docs, not the conversation history.
+4. **Record deferred items in the backlog** — `<project>/docs/product/backlog.md`
    (create if absent; tag with the feature slug in feature mode).
-4. Summarize back in chat and **recommend** the next stage (do not invoke it):
+5. Summarize back in chat and **recommend** the next stage (do not invoke it):
    "Recommended next: QA verifies the implementation against the artifacts."
 
 ## Handoff contract
@@ -200,3 +212,5 @@ freely rewrite:
 - Keep the **no outward-facing actions** rule — never commit/push/deploy unasked.
 - Keep the **Handoff contract**: return control and recommend QA; never auto-chain.
 - Keep recording deferred items in `backlog.md`.
+- Keep **artifact sync** — update upstream docs for any approved divergences before
+  handing off; silent divergence is a lifecycle defect.

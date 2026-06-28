@@ -269,6 +269,27 @@ runtime paths; architecture diagrams can be added later if useful.)
   stage-protocol).
 - Proactive approval notifications — v2 (from earlier stages' backlog).
 
+## Post-approval engineering divergences
+
+The following decisions were made during implementation and approved as deviations
+from this document. Recorded here so QA and future readers see the actual contract.
+
+**Concurrency limiter — custom `createLimiter` instead of p-limit:**
+The architecture's ADR listed `p-limit` as the example library for the cap-6
+concurrency limiter. The engineer implemented a hand-rolled `createLimiter` function
+in `git-service.ts` rather than taking the `p-limit` dependency. Behavior and cap are
+identical (FIFO queue, cap 6); the change avoids an ESM-compatibility issue with
+`p-limit` in the Electron main-process bundle context. `p-limit` does not appear in
+`package.json`. The "p-limit 6" entry in `05-implementation.md`'s stack table is a
+stale draft; the actual implementation uses the internal `createLimiter`.
+
+**Sidebar list virtualization deferred to v2:**
+The architecture stated "sidebar list virtualized for 100 rows" and listed a
+virtualization lib as an engineer decision. The engineer shipped a plain `Array.map`
+render instead and recorded `@tanstack/react-virtual` as a v2 backlog item. For the
+v1 use case (20–100 projects), unmeasured performance is acceptable; virtualization
+is not implemented in the current codebase.
+
 ## Next handoff
 
 Engineer → reads 01/02/03/04, implements the system per this architecture.

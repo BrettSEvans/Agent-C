@@ -107,6 +107,13 @@ Work these against the acceptance criteria you derived; gather evidence for each
 4. **Design & architecture conformance** — the implementation matches the UI
    direction (look, feel, voice) and honors the architecture's decisions; in
    feature mode, it conforms to `project-profile.md`'s conventions.
+   Also verify **artifact sync**: any divergences from upstream docs that were
+   approved during engineering must be documented in those docs (e.g. a
+   `## Post-approval design evolution` section in `03-ui-direction.md`, or a
+   note in `04-architecture.md`). If `05-implementation.md` describes something
+   different from the code, or if an upstream artifact still describes a design
+   that was knowingly changed, flag it as a finding — stale artifacts are a
+   defect in the lifecycle, not just housekeeping.
 5. **Non-functional checks** — accessibility, responsiveness, basic performance and
    security, scoped to the product type and the architecture's NFR targets.
 6. **Regression & side-effects** — existing behavior still works (especially in
