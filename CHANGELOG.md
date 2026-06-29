@@ -6,11 +6,11 @@ changelog maintenance commit backfills the hash.
 
 ## 2026-06-29
 
-- Commit: pending - Reconciled Agent-C's source-of-truth product and workflow docs
+- Commit: 4680ea8 - Reconciled Agent-C's source-of-truth product and workflow docs
   with the current platform reality: Claude Desktop manual skills, Claude Code
   wrapper definitions, and the Electron dashboard surface.
-- Commit: pending - Completed Agent-C's missing self-dogfooding artifacts:
+- Commit: 5106ba6 - Completed Agent-C's missing self-dogfooding artifacts:
   system UI direction, architecture, implementation documentation, and QA report.
-- Commit: pending - Updated the top-level architecture, README, orchestrator
+- Commit: 91951f0 - Updated the top-level architecture, README, orchestrator
   contract, backlog, and Code wrapper README for dashboard visibility,
   cross-surface notification, critic auto-apply, and registry recovery drift.
