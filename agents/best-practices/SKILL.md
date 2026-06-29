@@ -40,11 +40,53 @@ ORM) because they were *common*, not because they were *right*.
    name, or voice into generic defaults. Where a role produces creative output, it
    carries its own taste/originality guidance; this discipline raises the craft
    bar, it does not license blandness.
-5. **Flag staleness against your knowledge cutoff.** If a tool, pattern, or norm
-   may have shifted since your training, say so and recommend the user confirm,
-   rather than asserting a possibly-stale default as current.
+5. **Verify currency — don't just hedge.** The ecosystem moves faster than your
+   training snapshot, so any version number, library, API, or "current norm" you
+   are about to assert is suspect. When a retrieval tool is available, **check the
+   current state before asserting** (see *Verifying currency* below) and record
+   what you found with the date you checked (e.g. "Tailwind v4, verified
+   2026-06-29"). Only when no retrieval tool is available do you fall back to
+   flagging the item as possibly-stale and asking the user to confirm. Never
+   assert a possibly-dated default as current when you could have checked.
 6. **Record the road not taken.** Note the modern/idiomatic alternative even when
    you don't choose it, so the decision is visibly deliberate.
+
+## Verifying currency
+
+Method step 5 says to verify before asserting. This is how.
+
+**When to verify.** Trigger a check whenever a choice depends on a fast-moving
+fact your training may have outrun:
+
+- a specific library, framework, or tool version (current major, maintained
+  successor, deprecation status);
+- whether a pattern, API, or default is still idiomatic, or has been superseded;
+- the recommended option for a category you are about to name as "the modern
+  default" (e.g. the current routing, state, ORM, or testing norm for the stack).
+
+Not every choice needs a lookup — only the ones where being a year stale would
+change the recommendation. Use judgment; don't verify settled fundamentals.
+
+**How to verify.** Use whatever retrieval tool the session exposes, in order of
+preference:
+
+1. A **documentation or package-registry MCP** if one is connected (most precise
+   for live versions and official guidance).
+2. **Web search / fetch** (`WebSearch` / `WebFetch` in Claude Code) against the
+   project's or library's official docs and release notes — prefer primary
+   sources over blog roundups.
+
+**How to record.** Carry the result into the artifact so the decision is auditable:
+
+- Stamp the verified fact with the date checked: *"Next.js 15 (App Router),
+  verified 2026-06-29."*
+- If a check changes your candidate, note the prior assumption and why it moved.
+- If no retrieval tool is available in the session, say so explicitly and flag the
+  item for the user to confirm — do not silently assert.
+
+**Availability differs by surface.** Claude Code generally exposes web tools;
+Claude Desktop may not. The rule adapts: verify when you can, flag when you can't,
+and never present an unverified fast-moving fact as settled.
 
 ## How roles specialize this
 
@@ -73,6 +115,9 @@ The role skill carries the domain specifics; this skill carries the discipline.
 - Swapping one bias for another — reaching for the newest/heaviest framework to
   *look* modern.
 - Asserting a default as "best practice" when it may have been superseded since
-  your knowledge cutoff, instead of flagging it for the user to confirm.
+  your knowledge cutoff, instead of verifying it against a current source (or
+  flagging it for the user to confirm when no retrieval tool is available).
+- Treating a verification tool as available everywhere — asserting a checked fact
+  in a session that has no retrieval, instead of flagging it.
 - Discarding the alternative silently, so the decision looks accidental rather
   than deliberate.

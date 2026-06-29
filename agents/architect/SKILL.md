@@ -203,7 +203,8 @@ doc's closing sections.
 
 Follow the shared **best-practices** skill for the general discipline (anchor on
 current best practice, justify against the drivers, don't over-correct into novelty,
-flag staleness vs. your knowledge cutoff, record the road not taken). Load the
+verify fast-moving facts against a live source when a retrieval tool is available
+(otherwise flag against your knowledge cutoff), record the road not taken). Load the
 `best-practices` skill now if you haven't this session.
 
 For architecture this governs themes 3, 5, and 7 most. Name the modern, idiomatic

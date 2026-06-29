@@ -213,6 +213,17 @@ so user/orchestrator-supplied paths can't inject.
   modules behind the IPC layer → unit-testable with fixture registry/state files
   and a stubbed git; renderer store testable independently of Electron. This is the
   upstream the QA stage will lean on.
+- **Cross-surface notification contract:** The dashboard is one of three surfaces
+  (Desktop chat, Code subagents, Electron GUI) reading the same `state.json` files.
+  **Binding invariant:** every `needsYou: true` entry must appear on every active
+  surface simultaneously. The dashboard achieves this by: (1) reading `state.json`
+  as the source of truth (never caching approval status locally), (2) watching
+  `registry.json` changes via chokidar (the orchestrator's signal to rescan), and
+  (3) re-reading `state.json` immediately on watcher events. If the dashboard shows
+  a stale approval badge, the bug is either in the orchestrator (not touching
+  registry on every transition), the watcher (not firing), or the reader (not
+  updating the store). The invariant is not negotiable — surfaces must never
+  diverge on what the user needs to do.
 
 ## 9. Deployment, distribution & operations
 

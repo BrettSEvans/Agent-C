@@ -227,6 +227,20 @@ flowchart TD
 - **Platform:** Works on macOS, Linux, Windows (using standard web APIs; no platform-specific code).
 - **Accessibility:** Keyboard navigation, screen reader support (standard web practices).
 
+## 7. Cross-surface notification contract
+
+The dashboard participates in a **multi-surface approval system** where Claude Desktop (chat), Claude Code (subagents), and this Electron GUI are three equal surfaces over the same project state. The core promise is: **the user must see the same approval needs on every surface at the same time**.
+
+**Why this matters:** A developer might check the orchestrator in Claude Desktop to see what needs approval, then switch to the dashboard to view git state of a different project. They should see identical "awaiting approval" and "revision requested" flags in both places. If the dashboard shows a project as approved but chat shows it as awaiting approval, the developer gets confused and the approval process breaks.
+
+**Mechanics (for the engineer building this):**
+- Dashboard reads `state.json` files, which carry a `needsYou` flag set by the orchestrator.
+- When the orchestrator writes `state.json`, it also touches `registry.json` (the top-level cache) to signal all watchers.
+- The dashboard's file watcher reacts to registry changes and re-reads affected `state.json` files immediately.
+- The approval-state display (e.g., "Awaiting approval" badge in the detail pane) is always derived from the current `state.json`, never cached locally.
+
+**If this contract breaks:** The next maintainer must diagnose by checking: (1) Are file watchers firing? (2) Is the orchestrator touching `registry.json` on every state transition? (3) Is the dashboard re-reading `state.json` after watcher events? Stale approval badges are a bug in one of these layers, not a UI issue.
+
 ---
 
 ## Wireframes

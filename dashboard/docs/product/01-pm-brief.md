@@ -80,6 +80,17 @@ All are friction-heavy and don't scale with multiple projects or team handoffs.
 
 Free, open-source software. Distributed as part of the Agent-C repo (same codebase). No monetization model (v1 is community/solo).
 
+## 9. Post-v1 platform evolution & multi-surface design
+
+Agent-C has three surfaces for interacting with projects and approvals: **Claude Desktop** (text-based orchestrator commands), **Claude Code** (thin agent-definition wrappers), and this **Electron dashboard** (GUI visualization). All three surfaces read from the same on-disk `registry.json` and per-project `state.json` files — they are not separate systems, but different views onto shared state.
+
+**Critical invariant:** The dashboard and orchestrator chat must show identical approval needs (`needsYou: true` flags) at all times. If one surface displays a pending action and another does not, that is a bug in the synchronization layer, not acceptable drift. This is enforced by:
+- Both surfaces reading the same state files from disk.
+- File watchers on the dashboard that react immediately when state changes.
+- The orchestrator's contract to touch `registry.json` on every state transition, signaling the dashboard to rescan.
+
+Future surfaces (e.g., a CLI) must follow this same pattern: read the shared state files, ensure `needsYou` entries are always synchronized, and never allow a divergence between what the user sees in one place and another.
+
 ---
 
 ## Decisions (confirmed)

@@ -167,8 +167,11 @@ Beyond the two shared method skills, these patterns run through every role:
   multiple choice, reflect back, stop when returns diminish.
 - **Best-practices / anti-frequency-bias** — anchor each significant choice on the
   current, proven option and justify it against the project's drivers, not on how
-  often the pattern appears. Don't over-correct into novelty. Flag staleness against
-  the knowledge cutoff. (The architect specializes this into its **Decision
+  often the pattern appears. Don't over-correct into novelty. When a retrieval tool
+  is available (web search/fetch or a docs/package-registry MCP), verify fast-moving
+  facts — versions, current idioms — against a live source and date-stamp them, and
+  fall back to flagging against the knowledge cutoff only when no retrieval tool is
+  present. (The architect specializes this into its **Decision
   quality** section — e.g. a typed ORM over hand-rolled raw SQL unless raw SQL is a
   justified fit.)
 - **Taste & anti-slop (UI)** — best practice governs *craft*; **taste is the point
