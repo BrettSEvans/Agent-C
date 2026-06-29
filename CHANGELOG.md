@@ -9,3 +9,5 @@ changelog maintenance commit backfills the hash.
 - Commit: pending - Reconciled Agent-C's source-of-truth product and workflow docs
   with the current platform reality: Claude Desktop manual skills, Claude Code
   wrapper definitions, and the Electron dashboard surface.
+- Commit: pending - Completed Agent-C's missing self-dogfooding artifacts:
+  system UI direction, architecture, implementation documentation, and QA report.
