@@ -35,7 +35,9 @@ These are locked decisions that every part of the system honors.
 - **Recommend, don't auto-chain.** A stage returns control when done and
   *recommends* the next stage. Sequencing, the project registry, and approval gates
   belong to the **orchestrator** (the human, in manual use). No stage invokes the
-  next directly.
+  next directly. Carve-out: the engineer auto-applies technical-critic findings
+  as a targeted revise without waiting for HITL, because the critic is a quality
+  gate feeding back to an existing stage, not a lifecycle stage invoking the next.
 - **Product-type aware.** Skills never assume a GUI. Each adapts its vocabulary and
   outputs to the product type (GUI app / CLI / agentic / API). The type is set in
   the PM brief and flows downstream.
@@ -230,8 +232,30 @@ invoke the Skill tool. They are **Claude Code-only** (Desktop has no subagents) 
 plus manual orchestration and checkpointing before deepening any one role or adding
 autonomous dispatch.
 
-Agent-C has been run on itself: `docs/product/` holds `01-pm-brief.md`,
-`02-ux-workflow.md`, `backlog.md`, `wireframes/`, and `critic-reports/`.
+Agent-C has now been run on itself through the full artifact chain:
+`docs/product/` holds `01-pm-brief.md`, `02-ux-workflow.md`,
+`03-ui-direction.md`, `04-architecture.md`, `05-implementation.md`,
+`qa-report.md`, `backlog.md`, `wireframes/`, and `critic-reports/`.
+
+## 8.5 Sub-products: the Dashboard
+
+The text dashboard described in the orchestrator has a GUI counterpart: the
+Electron-based **dashboard application** in `dashboard/`. The GUI dashboard is the
+visual realization of the orchestrator's project registry and approval-gate state.
+
+**Architecture:** Electron 33 main/preload/renderer split, React 18, TypeScript,
+Zustand, Tailwind/CSS styling, chokidar file watching, and read-only git services.
+It watches the registry and project state files on disk and updates reactively
+when orchestrator actions change state. It is built and tested as a full
+sub-product with its own discovery chain in `dashboard/docs/product/`.
+
+**Relationship to orchestrator:** the orchestrator owns the business rules:
+sequencing, gates, registry refresh, and what needs the user's attention. The
+dashboard is one surface over that same state. It does not advance lifecycle
+stages or replace the text workflow.
+
+**Test coverage:** the dashboard test suite covers watcher, git, state, registry,
+persistence, store, and UI component behavior.
 
 ---
 
@@ -276,11 +300,22 @@ Agent-C/
 │   ├── technical-critic/      # quality review of architect/engineer/QA artifacts + code
 │   └── orchestrator/          # front door: registry, dashboard, approval gates
 ├── agent-defs/                # thin subagent wrappers (Code-only): 6 stages + critics
+├── dashboard/                 # Electron GUI dashboard for orchestrator state
+│   ├── src/main/              # Electron main process: IPC, watchers, git, readers
+│   ├── src/renderer/          # React app: project list, approval UI, git state
+│   ├── src/preload/           # contextBridge IPC surface
+│   ├── src/shared/            # shared DashboardAPI/types
+│   ├── docs/product/          # dashboard's own lifecycle artifacts
+│   └── package.json
 └── docs/
     ├── DUAL-MODE-SKILL-PATTERN.md
     └── product/               # Agent-C's own lifecycle artifacts (whole-product)
         ├── 01-pm-brief.md
         ├── 02-ux-workflow.md
+        ├── 03-ui-direction.md
+        ├── 04-architecture.md
+        ├── 05-implementation.md
+        ├── qa-report.md
         ├── backlog.md
         ├── wireframes/
         └── critic-reports/

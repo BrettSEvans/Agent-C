@@ -32,9 +32,11 @@ way. (See `docs/superpowers/plans/2026-06-23-agentic-dev-system-pm.md`, "Deferre
 - **Claude Code only.** Subagents are a Code feature; **Claude Desktop has no
   subagents**, so on Desktop you invoke the skills directly and *you* are the
   orchestrator. These wrappers add nothing on Desktop.
-- **Not wired to an orchestrator yet.** They become useful when the orchestrator
-  (project registry + stage sequencing + approval gates) exists to dispatch them.
-  Until then they're ready but idle.
+- **Prepared for future autonomous dispatch.** The manual orchestrator skill now
+  exists and owns the project registry, stage sequencing, and approval gates. These
+  wrappers are still idle until a Code-only autonomous dispatcher is built; when
+  that exists, it should dispatch through these wrappers rather than duplicating
+  skill logic.
 
 ## Installing
 

@@ -80,7 +80,14 @@ QA**), shared methods (`elicitation`, `best-practices`, `feature-mode`,
 owns the project registry, dashboard, and approval gates; roles own their work and
 checkpoints. Checkpointing and resumption work in v1 — interrupt a stage mid-elicitation
 and resume from the last question. Critic is integrated as an opt-in gate action on
-PM/UX/UI stages.
+PM/UX/UI stages. The technical-critic reviews architect/engineer/QA artifacts and
+code in a single pass; APPLY findings are auto-applied by the engineer with no
+HITL inside the critic loop, and the human gate reviews the final result at QA.
+
+An Electron GUI dashboard is also built as a separate sub-product in
+[`dashboard/`](dashboard/). It is the visual counterpart to the orchestrator's
+text dashboard, reading the same registry and `state.json` files to show project
+stage, approval needs, and git state.
 
 **Next steps (post-v1, Code-only):** autonomous subagent dispatch, multi-session
 locking, per-user identity, deeper role specialization.

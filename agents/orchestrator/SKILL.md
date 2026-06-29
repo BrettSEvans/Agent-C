@@ -134,6 +134,12 @@ projects are in-progress or complete."
 The dashboard and this text block are always shown together; neither replaces the
 other.
 
+**Cross-surface invariant (mandatory for all surfaces):** every `needsYou: true`
+entry must appear on every active surface reading `state.json`. The orchestrator's
+chat output, the Electron dashboard, and any future CLI must agree on what needs
+the user's attention. If a pending action appears on one surface but not another,
+the stale surface is wrong.
+
 ---
 
 ## Command surface

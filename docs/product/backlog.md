@@ -13,6 +13,11 @@
   moved/deleted. Dashboard should flag it `unreachable` and offer repoint/remove
   instead of crashing. *Deferred:* depends on registry design; shown in the
   dashboard wireframe for shape only.
+- **Registry/state corruption recovery** — define a formal recovery path when
+  `~/.agent-c/registry.json` or a project `state.json` is corrupt, partially
+  written, or inconsistent with artifacts on disk. Current docs cover missing
+  paths and tolerant reads, but not full repair/rebuild behavior. *Deferred:*
+  needs an architect/QA pass dedicated to state repair and schema versioning.
 
 ## Retrospective review of existing projects (feature request, 2026-06-24)
 

@@ -11,3 +11,6 @@ changelog maintenance commit backfills the hash.
   wrapper definitions, and the Electron dashboard surface.
 - Commit: pending - Completed Agent-C's missing self-dogfooding artifacts:
   system UI direction, architecture, implementation documentation, and QA report.
+- Commit: pending - Updated the top-level architecture, README, orchestrator
+  contract, backlog, and Code wrapper README for dashboard visibility,
+  cross-surface notification, critic auto-apply, and registry recovery drift.
