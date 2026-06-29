@@ -180,6 +180,23 @@ The authoritative description of what was actually built is in
   approval with no feedback; next-stage advancement prompt when approved and clean;
   commit reminder when git work is outstanding.
 - **"Claude Prompt" toast:** 5-second inline status message after click.
+- **Info popup — structured breakdown:** popup now shows five sections: (1) Stage —
+  role name, description, artifact produced; (2) Status — approval/revision badge,
+  revisions, critic passes, updated age; (3) Feedback — full text + report path when
+  `pendingFeedback` is set; (4) Next step — next stage role + description when ready
+  to approve, or invoke command when revision is pending; (5) Claude prompt — the
+  exact context-aware prompt text rendered as a selectable `<pre>` block so the user
+  can read it before copying. `InfoPopup` gains a `gitState` prop (required for
+  prompt generation). `approvalSummary()` helper removed; logic is now inline.
+- **Orchestrator dual-surface notification:** orchestrator skill updated to always
+  output a "What needs your attention" plain-text block after the dashboard table,
+  listing every `needsYou: true` project with its exact Claude command. Users see
+  what's needed regardless of whether they're looking at the Electron dashboard or
+  only at Claude chat.
+- **Dashboard auto-refresh on state.json change:** the chokidar watcher already fires
+  `state-changed` for any `state.json` write. The orchestrator's gate actions
+  (approve, request-changes) write `state.json`, so the dashboard auto-updates when
+  the user acts in Claude. No new code required.
 
 ## Test suite (current)
 
@@ -191,10 +208,10 @@ The authoritative description of what was actually built is in
  ✓ src/main/services/__tests__/persistence.test.ts        (7 tests)
  ✓ src/renderer/src/store/__tests__/store.test.ts         (11 tests)
  ✓ src/renderer/src/components/__tests__/Sidebar.test.tsx       (7 tests)
- ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (27 tests)
+ ✓ src/renderer/src/components/__tests__/ProjectDetail.test.tsx (33 tests)
 
  Test Files  8 passed (8)
-      Tests  91 passed (91)
+      Tests  97 passed (97)
 ```
 
 | Suite | Behaviors covered |
@@ -206,7 +223,7 @@ The authoritative description of what was actually built is in
 | persistence | recent save/load; dedup + MRU; trim to 10; git cache save/update/null miss |
 | store | initial state; setProjects; selectProject; updateGitState; isStale fresh/stale/unknown; addRecent dedup; search filter; empty search |
 | Sidebar | search input; project list; approval flag; click → onSelect prop; search filter; recent section conditional; no recent section when empty |
-| ProjectDetail | name/badge/revisions; approval warning present/absent; revision-requested vs awaiting-approval text; info button visible/hidden; popup opens on click; popup shows feedback text; popup closes; Claude Prompt button + copyText API call; orchestrator prompt when no feedback; revision prompt when feedback set; next-stage prompt when approved+clean; toast shows/hides/absent; cached age; failed state; file list paths/labels/absent-when-clean |
+| ProjectDetail | name/badge/revisions; approval warning present/absent; revision-requested vs awaiting-approval text; info button visible/hidden; popup opens on click; popup shows stage role/description/produces; popup shows claude prompt text; popup shows next stage role; popup shows revision invoke command; popup shows feedback text; popup closes; Claude Prompt button + copyText API call; orchestrator/revision/next-stage/commit prompts; toast shows/hides/absent; cached age; failed state; file list paths/labels/absent-when-clean |
 
 **Visual-only surfaces (not unit-tested — deferred to QA visual/a11y pass):**
 - Radial gradient focal point randomisation (visual output of `useMetalStyle`)

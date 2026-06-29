@@ -18,6 +18,15 @@ const SKILL: Record<Stage, string> = {
   architect: 'architect', engineer: 'engineer', qa: 'qa'
 }
 
+const STAGE_INFO: Record<Stage, { role: string; description: string; produces: string }> = {
+  pm:       { role: 'Product Manager', description: 'Defines the what and why — problem, target users, value proposition, scope, and success metrics.', produces: '01-pm-brief.md' },
+  ux:       { role: 'UX Designer',     description: 'Defines how the product works — user flows, screens, states, edge cases, and interaction feedback.',  produces: '02-ux-workflow.md' },
+  ui:       { role: 'UI Designer',     description: 'Defines look, feel, taste, and voice — color, typography, component styling, and the design concept.', produces: '03-ui-direction.md' },
+  architect:{ role: 'Architect',       description: 'Defines the technical architecture — system structure, data model, interfaces, and key decisions.',      produces: '04-architecture.md' },
+  engineer: { role: 'Engineer',        description: 'Implements the architecture in working, idiomatic, tested code using test-driven development.',          produces: 'source code + 05-implementation.md' },
+  qa:       { role: 'QA Engineer',     description: 'Verifies the implementation against all artifacts — flows, conformance, accessibility, and regressions.',produces: 'qa-report.md' },
+}
+
 function buildClaudePrompt(
   entry: RegistryEntry,
   projectState: ProjectState | null,
@@ -53,48 +62,27 @@ function buildClaudePrompt(
   return `/orchestrator ${name}`
 }
 
-function approvalSummary(
-  entry: RegistryEntry,
-  projectState: ProjectState | null
-): { headline: string; detail: string; next: string } {
-  const stage = entry.currentStage.toUpperCase()
-  const stageInfo = projectState?.stages[entry.currentStage]
-  const feedback = projectState?.pendingFeedback
-  const revisions = stageInfo?.revisions ?? entry.revisionCount
-  const criticPasses = stageInfo?.criticPasses ?? 0
-  const meta = `Revisions: ${revisions}  ·  Critic passes: ${criticPasses}`
-
-  if (feedback) {
-    return {
-      headline: `${stage} — Revision requested`,
-      detail: feedback.text,
-      next: `Invoke /${SKILL[entry.currentStage]} to apply the revisions, then return here to approve.`
-    }
-  }
-
-  return {
-    headline: `${stage} — Ready for approval`,
-    detail: `The ${entry.currentStage} stage artifact is complete and ready for your review.\n\n${meta}`,
-    next: `Invoke /orchestrator to approve and advance, or request changes to send back for revision.`
-  }
-}
-
 // ── Info popup ────────────────────────────────────────────────────────────────
 
 function InfoPopup({
   entry,
   projectState,
+  gitState,
   onClose
 }: {
   entry: RegistryEntry
   projectState: ProjectState | null
+  gitState: GitState | null
   onClose: () => void
 }): JSX.Element {
-  const { headline, detail, next } = approvalSummary(entry, projectState)
+  const info = STAGE_INFO[entry.currentStage]
   const stageInfo = projectState?.stages[entry.currentStage]
+  const feedback = projectState?.pendingFeedback
   const revisions = stageInfo?.revisions ?? entry.revisionCount
   const criticPasses = stageInfo?.criticPasses ?? 0
-  const reportPath = projectState?.pendingFeedback?.reportPath
+  const idx = STAGE_ORDER.indexOf(entry.currentStage)
+  const nextStage = idx >= 0 && idx < STAGE_ORDER.length - 1 ? STAGE_ORDER[idx + 1] : null
+  const claudePrompt = buildClaudePrompt(entry, projectState, gitState)
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
@@ -112,27 +100,55 @@ function InfoPopup({
     >
       <div className="info-popup">
         <header className="info-popup__header">
-          <span className="info-popup__title">★ {headline}</span>
+          <span className="info-popup__title">{entry.currentStage.toUpperCase()} STAGE</span>
           <button className="btn--link info-popup__close" onClick={onClose} aria-label="Close">✕</button>
         </header>
 
-        <p className="info-popup__meta">
-          Revisions: {revisions}  ·  Critic passes: {criticPasses}
-        </p>
+        <section className="info-popup__stage">
+          <span className="info-popup__stage-role">{info.role}</span>
+          <p className="info-popup__stage-desc">{info.description}</p>
+          <p className="info-popup__stage-produces">Produces: <code>{info.produces}</code></p>
+        </section>
 
-        {projectState?.pendingFeedback ? (
-          <>
-            <p className="info-popup__label">Feedback waiting to be applied:</p>
-            <div className="info-popup__feedback">{detail}</div>
-            {reportPath && (
-              <p className="info-popup__report">Report: {reportPath}</p>
+        <section className="info-popup__status">
+          <span className={`info-popup__status-badge${feedback ? ' info-popup__status-badge--revision' : ' info-popup__status-badge--approval'}`}>
+            {feedback ? '⚠ Revision requested' : '✓ Ready for approval'}
+          </span>
+          <p className="info-popup__meta">
+            Revisions: {revisions} · Critic passes: {criticPasses} · Updated {formatAge(entry.updatedAt)}
+          </p>
+        </section>
+
+        {feedback && (
+          <section className="info-popup__feedback-section">
+            <p className="info-popup__section-label">Feedback to apply</p>
+            <div className="info-popup__feedback">{feedback.text}</div>
+            {feedback.reportPath && (
+              <p className="info-popup__report">Report: {feedback.reportPath}</p>
             )}
-          </>
-        ) : (
-          <p className="info-popup__body">{detail}</p>
+          </section>
         )}
 
-        <p className="info-popup__next">{next}</p>
+        <section className="info-popup__next-section">
+          <p className="info-popup__section-label">Next step</p>
+          {feedback ? (
+            <p className="info-popup__next-text">
+              Invoke <code>/{SKILL[entry.currentStage]}</code> to apply the revisions, then return here to approve.
+            </p>
+          ) : nextStage ? (
+            <p className="info-popup__next-text">
+              When approved, <strong>{STAGE_INFO[nextStage].role}</strong> takes over —{' '}
+              {STAGE_INFO[nextStage].description}
+            </p>
+          ) : (
+            <p className="info-popup__next-text">This is the final stage. Approve to mark the project complete.</p>
+          )}
+        </section>
+
+        <section className="info-popup__prompt-section">
+          <p className="info-popup__section-label">Claude prompt</p>
+          <pre className="info-popup__prompt">{claudePrompt}</pre>
+        </section>
       </div>
     </div>
   )
@@ -301,6 +317,7 @@ export function ProjectDetail({
         <InfoPopup
           entry={entry}
           projectState={projectState}
+          gitState={gitState}
           onClose={() => setShowPopup(false)}
         />
       )}

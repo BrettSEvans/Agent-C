@@ -113,6 +113,27 @@ SecureFile (product)                   — path: /Users/me/secure-file
 - The `*` flag marks entries where `needsYou = true` (awaiting your gate decision).
 - Sort by most-recent `updatedAt` (active projects first).
 
+**After the dashboard table, always output a plain-text "What needs your attention"
+block** — listing every `needsYou: true` entry with the exact command the user should
+run. This ensures the user knows what to do regardless of whether they are looking at
+the Electron dashboard or only at Claude chat.
+
+```
+What needs your attention
+─────────────────────────
+1. Tiffany — UX stage awaiting your approval
+   → /orchestrator Tiffany   (approve or request changes)
+
+2. SecureFile — ENGINEER revision requested (critic feedback pending)
+   → /engineer — SecureFile: revision requested. <feedback summary>
+```
+
+If nothing needs attention, write: "Nothing needs your attention right now — all
+projects are in-progress or complete."
+
+The dashboard and this text block are always shown together; neither replaces the
+other.
+
 ---
 
 ## Command surface

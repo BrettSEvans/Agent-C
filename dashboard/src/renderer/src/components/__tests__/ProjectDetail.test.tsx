@@ -144,6 +144,43 @@ describe('ProjectDetail', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
+  it('popup shows stage role name', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('UX Designer')
+  })
+
+  it('popup shows stage description', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent(/user flows/i)
+  })
+
+  it('popup shows what the stage produces', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('02-ux-workflow.md')
+  })
+
+  it('popup shows the claude prompt text', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent(/\/orchestrator/i)
+  })
+
+  it('popup shows next stage role when ready for approval', () => {
+    render(<ProjectDetail entry={entry} projectState={state} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    // entry.currentStage = 'ux' → next is 'ui'
+    expect(screen.getByRole('dialog')).toHaveTextContent('UI Designer')
+  })
+
+  it('popup shows invoke command when revision is requested', () => {
+    render(<ProjectDetail entry={entry} projectState={stateWithFeedback} gitState={freshGit} />)
+    fireEvent.click(screen.getByRole('button', { name: /show approval details/i }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('/ux')
+  })
+
   // ── Claude Prompt button ─────────────────────────────────────────────────
 
   it('shows "Claude Prompt" button', () => {
