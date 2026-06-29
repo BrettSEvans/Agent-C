@@ -3,9 +3,16 @@
 > Source of truth for the product's what & why. Written by the Sr. Product
 > Manager. Read by UX next (02-ux-workflow.md). Date: 2026-06-23
 
-**Product type:** Agentic / conversational developer tool, designed for **Claude Desktop** (not Code) — skill-driven, no GUI screens; downstream stages design text/interaction touchpoints, not graphical screens.
+**Product type:** Agentic / conversational developer tool. Original v1 discovery
+baseline: **Claude Desktop**, skill-driven, no GUI screens; downstream stages
+designed text/interaction touchpoints, not graphical screens. Current product
+reality: Agent-C now spans Claude Desktop manual skills, Claude Code wrapper
+definitions, and an Electron dashboard surface (see "Post-v1 platform evolution").
 
-**Claude model:** Sonnet (Claude 3.5 Sonnet minimum for PM, UX, UI stages). Later stages (architect/engineer/QA) to determine their model requirements.
+**Claude model (current):** Sonnet 4.6+ for PM, UX, and UI stages.
+**Historical floor:** Claude 3.5 Sonnet was the v1 discovery baseline. Later
+stages may use stronger models when architecture, implementation, or QA depth
+requires it.
 
 ## 1. Problem & pain
 Coding by ad-hoc prompting forces the developer to re-explain context every
@@ -97,6 +104,27 @@ Ranked roughly by exposure:
 Undecided and deliberately deferred. Ship it, see whether solo devs find it
 valuable, decide on monetization later. Users bring their own Claude subscription.
 
+## 9. Post-v1 platform evolution
+
+The core product promise is unchanged: a transparent, steerable lifecycle where
+PM -> UX -> UI -> architect -> engineer -> QA each produce reviewable artifacts
+that the developer approves before advancing. The platform surfaces evolved after
+the original v1 discovery baseline:
+
+- **Claude Desktop:** manual orchestration. Users invoke skills directly, review
+  artifacts, and use the orchestrator skill as a registry/dashboard and gate guide.
+- **Claude Code:** thin wrapper definitions live in `agent-defs/`. They dispatch
+  to the same canonical skills and are Code-only because Desktop has no subagents.
+  They are ready for future autonomous dispatch but are not a separate method.
+- **Electron dashboard:** `dashboard/` is a GUI sub-product that visualizes the
+  same project registry and approval-gate state that the text orchestrator shows.
+  It does not replace the text workflow; it is another surface over the same
+  on-disk state.
+
+This is a healthy post-discovery expansion, not a change to the lifecycle model.
+The original "Desktop/no GUI" language should be read as the starting constraint
+that shaped v1, not as the full current system boundary.
+
 ---
 
 ## Decisions (confirmed)
@@ -116,8 +144,8 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
 - **User is the orchestrator (v1):** Desktop has no subagents, so orchestration is
   manual. The user controls sequencing, registry, and approval gates. Stage agents
   return control + recommend the next stage; they never auto-chain.
-- **Claude Sonnet for PM/UX/UI stages:** minimum Claude 3.5 Sonnet. Later stages
-  determine their own model requirements.
+- **Claude Sonnet for PM/UX/UI stages:** current guidance is Sonnet 4.6+; Claude
+  3.5 Sonnet remains the historical v1 discovery floor.
 - **Stage checkpointing:** each stage tracks and marks completed steps (themes,
   sections answered). On resumption after interruption, the user picks up from the
   last completed step, not from scratch.
@@ -138,9 +166,7 @@ valuable, decide on monetization later. Users bring their own Claude subscriptio
 - Monetization model (free OSS vs. open-core vs. paid).
 - Distribution mechanism that avoids the home-dir symlink approach used in the
   builder's own setup (installer / packaging strategy) — for Desktop installation.
-- Project registry mechanism (where the registry lives, its format, how a
-  project's current/completed stages are recorded and updated on handoff, and how
-  adopting an external directory works) — to be designed at the architect stage.
+- Formal repair behavior for corrupt registry/state files.
 
 ## Next handoff
 UX agent → reads this brief, runs workflow elicitation, writes

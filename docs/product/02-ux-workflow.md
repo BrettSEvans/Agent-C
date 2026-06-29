@@ -4,10 +4,12 @@
 > agent from 01-pm-brief.md. Read by UI next (03-ui-direction.md).
 > Date: 2026-06-23
 
-> **Note on product type:** Agent-C is a CLI/agentic tool driven through Claude
-> Code/Desktop — it has **no GUI screens**. "Screens/views" are reframed as
-> **interaction touchpoints** (a conversation turn, a dashboard listing, a gate
-> prompt). Wireframes are flow/structure sketches, not screen mockups.
+> **Note on product type:** Agent-C began as a CLI/agentic tool driven through
+> Claude Desktop/Code, where "screens/views" were reframed as **interaction
+> touchpoints** (a conversation turn, a dashboard listing, a gate prompt). That
+> remains the lifecycle baseline. Post-discovery, the text dashboard also gained
+> an Electron GUI counterpart in `dashboard/`; it is another surface over the same
+> registry/state model, not a replacement for the text workflow.
 
 ## 1. Primary user flows
 **Core flow — Start a new project** (the flagship; see
@@ -61,6 +63,24 @@ Reframed as **interaction touchpoints**:
 - **Working/progress indication:** while an agent is actively eliciting or
   generating, show it's working vs. parked.
 
+### Cross-surface notification invariant
+
+**Rule:** every action that requires user attention must be surfaced on every
+active surface at the same time. The user should know what needs their attention
+whether they are looking at Claude chat, the Electron dashboard, or a future CLI.
+
+**Mechanics:**
+- Each project's `docs/product/state.json` is the source of truth.
+- `needsYou: true` marks a project or stage awaiting approval, revision, or other
+  user action.
+- The orchestrator reads `state.json` and prints a plain-text "What needs your
+  attention" block in chat.
+- The Electron dashboard watches the same state on disk and updates reactively.
+- Any future surface must read the same state and show the same pending actions.
+
+If one surface shows a pending action and another active surface does not, that is
+a surface implementation bug, not a product-design choice.
+
 ## 5. Edge cases & off-happy-path
 **Handled in v1:**
 - **Stage run out of order** — agent detects the missing prior artifact and stops
@@ -73,9 +93,9 @@ Reframed as **interaction touchpoints**:
 reconciliation; stale-registry repoint/remove; (and other items as they arise).
 
 ## 6. Workflow constraints
-- **Text/conversational only** — everything renders as text/markdown in Claude
-  Code/Desktop; no GUI. (Also the accessibility win: text is screen-reader
-  friendly.)
+- **Text/conversational baseline** — the lifecycle must remain fully usable as
+  text/markdown in Claude Code/Desktop. The Electron dashboard is an additional
+  GUI surface over the same state, not a required replacement.
 - **Bounded by skills/subagents** — the flow can only assume what the Claude Code
   skill/subagent platform actually supports (invocation, context passing, file
   I/O).
@@ -105,8 +125,9 @@ reconciliation; stale-registry repoint/remove; (and other items as they arise).
 - Wireframes produced: flow + dashboard + gate transcript (low-fi).
 
 ## Assumptions
-- Agent-C has no GUI; the UI stage will style *text* touchpoints (dashboard
-  layout, gate presentation, transcript formatting), not graphical screens.
+- Agent-C's lifecycle remains text-first and fully operable without a GUI. The UI
+  stage should style both the text touchpoints and the Electron dashboard surface
+  where applicable.
 - The orchestrator's command surface (new/resume/switch/adopt/repoint/remove) is
   indicative; exact command syntax is an implementation detail for later stages.
 
